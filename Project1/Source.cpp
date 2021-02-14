@@ -16,11 +16,18 @@ int main()
 		a.push_back(0);
 	}*/
 	
-	
-	for (int i = 0; i <= 100; ++i)
+	try
 	{
-		std::cout << i << " elements : " << a.capacity() << " capacity;\n";
-		a.push_back(0);
+		a.reserve(1000000000000);
+		for (int i = 0; i <= 100; ++i)
+		{
+			std::cout << i << " elements : " << a.capacity() << " capacity;\n";
+			a.push_back(0);
+		}
+	}
+	catch (const std::exception& exc)
+	{
+		std::cerr << exc.what() << std::endl;
 	}
 /*without reserve k=1.5
 0 elements : 0 capacity;
@@ -230,5 +237,5 @@ int main()
 100 elements : 112 capacity;
 ==============================*/
 
-// a.reserve(1000000000) - debug error abort() has been called
+// a.reserve(1000000000) - debug error abort() has been called/// VECTOR TOO LONG
 }
