@@ -1,6 +1,10 @@
 #include <iostream>
 #include <chrono>
+#include <array>
 #include <vector>
+#include <deque>
+#include <list>
+#include <forward_list>
 #include <algorithm>
 template <typename T >
 class Timer
@@ -49,6 +53,10 @@ public:
 		}
 
 	}
+	double get_time()
+	{
+		return duration_t.count();
+	}
 
 private:
 	time_point_t m_begin;
@@ -59,6 +67,48 @@ private:
 
 int main()
 {
+	//std::array<int,100000> array1;
+	//std::array<int, 1000000> array2;
+
+	//std::vector<int> vector1;
+	//std::vector<int> vector2;*/
+
+	//std::deque<int> deque1;
+	//std::deque<int> deque2;
+
+	//std::list<int> list1;
+	//std::list<int> list2;
+
+	std::forward_list<int> forward_list1;
+	//std::forward_list<int> forward_list2;*/
+
+	for (int i = 100000; i > 0; --i)
+	{
+		//vector1[i - 1] = i;
+		//array2[i - 1] = i;
+
+		//vector1.push_back(i);
+		//vector2.push_back(i);*/
+
+		//deque1.push_back(i);
+		//deque2.push_back(i);
+
+		//list1.push_back(i);
+		//list2.push_back(i);
+
+		forward_list1.push_front(100000-i);
+		//forward_list2.push_front(1000000 - i);*/
+	}
+
+	{
+		Timer<std::chrono::microseconds> t1("Timer");
+		//std::sort(std::begin(list1), std::end(list1));
+		forward_list1.sort();
+		
+		
+		
+
+	}
 
 }
 
