@@ -1,127 +1,74 @@
-//#include <algorithm>
-//#include <array>
-//#include <iomanip>
-//#include <iostream>
-//#include <vector>
-//
-//#include <boost/multi_array.hpp>
-//
-//template < auto N, typename Container, typename Forward_Iterator >
-//void fill_shape(const Container& container, Forward_Iterator shape)
-//{
-//	*shape = std::size(container);
-//
-//	if constexpr (N > 1)
-//	{
-//		fill_shape < N - 1 >(*(std::begin(container)), ++shape);
-//	}
-//}
-//
-//
-//template < auto N, typename Container, typename Forward_Iterator >
-//void fill_multi_array(const Container& container, Forward_Iterator multi_array)
-//{
-//	// Write your code here ...
-//
-//	// USE: recursive template instantiation of fill_multi_array
-//	// USE: std::next(multi_array, i)->begin() in recursion
-//	// USE: if constexpr (N > 1) { ... } else { ... }
-//}
-//
-//
-//
-//template < typename T, auto N, typename Container >
-//auto make_multi_array(const Container& container)
-//{
-//	using multi_array_t = boost::multi_array < T, N >;
-//
-//	std::vector < multi_array_t::index > shape(N, multi_array_t::index(0));
-//
-//	fill_shape < N >(container, std::begin(shape));
-//
-//	multi_array_t multi_array(shape);
-//
-//	fill_multi_array < N >(container, std::begin(multi_array));
-//
-//	return multi_array;
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//int main(int argc, char** argv)
-//{
-//	const auto size_1 = 3U;
-//	const auto size_2 = 4U;
-//	const auto size_3 = 5U;
-//
-//	std::vector < std::vector < std::vector < int > > > v(size_1, std::vector < std::vector < int > >(size_2, std::vector < int >(size_3, 0)));
-//
-//	std::cout << "std::vector < std::vector < std::vector < int > > >\n" << std::endl;
-//
-//	auto counter = 0;
-//
-//	for (auto i = 0U; i < size_1; ++i)
-//	{
-//		for (auto j = 0U; j < size_2; ++j)
-//		{
-//			for (auto k = 0U; k < size_3; ++k)
-//			{
-//				std::cout << std::setw(2) << std::right << (v[i][j][k] = ++counter) << " ";
-//			}
-//
-//			std::cout << std::endl;
-//		}
-//
-//		std::cout << std::endl;
-//	}
-////==========================================================================================================
-//	auto multi_array = make_multi_array < int, 3U >(v);
-//
-//	std::cout << "boost::multi_array\n" << std::endl;
-//
-//	for (auto i = 0U; i < size_1; ++i)
-//	{
-//		for (auto j = 0U; j < size_2; ++j)
-//		{
-//			for (auto k = 0U; k < size_3; ++k)
-//			{
-//				std::cout << std::setw(2) << std::right << multi_array[i][j][k] << " ";
-//			}
-//
-//			std::cout << std::endl;
-//		}
-//
-//		std::cout << std::endl;
-//	}
-//
-//	system("pause");
-//
-//	return EXIT_SUCCESS;
-//}
-
 #include <algorithm>
+#include <array>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 
-#include <boost/multi_array.hpp>
+#include <boost/multi_array.hpp	>
+
+template < auto N, typename Container, typename Forward_Iterator >
+void fill_shape(const Container& container, Forward_Iterator shape)
+{
+	*shape = std::size(container);
+	std::cout << *shape << ' ' << N << std::endl;
+
+	if constexpr (N > 1)
+	{
+		fill_shape < N - 1 >(*(std::begin(container)), ++shape);
+	}
+}
+
+template < auto N, typename Container, typename Forward_Iterator >
+void fill_multi_array(const Container& container, Forward_Iterator multi_array)
+{
+	if constexpr (N > 1)
+	{
+		for (int i = 0; i < std::size(container); i++) 
+		{
+			fill_multi_array < N - 1 >(*(std::begin(container)+i), (std::next(multi_array, i)->begin()));
+		}
+}
+	else
+	{
+		for (const auto i : container)
+		{
+			*multi_array = i;
+			multi_array++;
+		}
+	}
+
+		// Enjoy debugging!
+
+}
+
+
+template < typename T, auto N, typename Container >
+auto make_multi_array(const Container& container)
+{
+	using multi_array_t = boost::multi_array < T, N >;
+
+	std::vector < boost::multi_array < T, N >::index > shape(N, boost::multi_array < T, N >::index(0));
+
+	fill_shape < N >(container, std::begin(shape));
+
+	boost::multi_array < T, N > multi_array(shape);
+
+	fill_multi_array < N >(container, std::begin(multi_array));
+
+	return multi_array;
+}
 
 int main(int argc, char** argv)
 {
-	const auto size_1 = 5U;
+	const auto size_1 = 3U;
 	const auto size_2 = 4U;
 	const auto size_3 = 5U;
 
-	using array_t = boost::multi_array < int, 3U >;
+	std::vector < std::vector < std::vector < int > > > v(size_1,
+		std::vector < std::vector < int > >(size_2,
+			std::vector < int >(size_3, 0)));
 
-	array_t array(boost::extents[size_1][size_2][size_3]);
+	std::cout << "std::vector < std::vector < std::vector < int > > >\n" << std::endl;
 
 	auto counter = 0;
 
@@ -131,7 +78,7 @@ int main(int argc, char** argv)
 		{
 			for (auto k = 0U; k < size_3; ++k)
 			{
-				std::cout << std::setw(2) << std::right << (array[i][j][k] = ++counter) << " ";
+				std::cout << std::setw(2) << std::right << (v[i][j][k] = ++counter) << " ";
 			}
 
 			std::cout << std::endl;
@@ -140,26 +87,62 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 	}
 
-	using view_t = array_t::array_view < 2 > ::type;
+	auto multi_array = make_multi_array < int, 3U >(v);
 
-	using range_t = boost::multi_array_types::index_range;
+	std::cout << "boost::multi_array\n" << std::endl;
 
-	view_t view = array[boost::indices[range_t(0, 2)][1][range_t(0, 5, 2)]];
-
-
-	const auto view_size_1 = 2U;
-	const auto view_size_2 = 3U;
-
-	for (auto i = 0U; i < view_size_1; ++i)
+	for (auto i = 0U; i < size_1; ++i)
 	{
-		for (auto k = 0U; k < view_size_2; ++k)
+		for (auto j = 0U; j < size_2; ++j)
 		{
-			std::cout << std::setw(2) << std::right << view[i][k] << " ";
+			for (auto k = 0U; k < size_3; ++k)
+			{
+				std::cout << std::setw(2) << std::right << multi_array[i][j][k] << " ";
+			}
+
+			std::cout << std::endl;
 		}
 
 		std::cout << std::endl;
 	}
-
-	std::cout << std::endl;
-
 }
+
+	//const auto size_1 = 3U;
+	//const auto size_2 = 4U;
+
+	//std::vector < std::vector < int > > v(size_1, std::vector < int >(size_2, 0));
+
+	//std::cout << "std::vector < std::vector < int > >\n" << std::endl;
+
+	//auto counter = 0;
+
+	//for (auto i = 0U; i < size_1; ++i)
+	//{
+	//	for (auto j = 0U; j < size_2; ++j)
+	//	{
+	//		std::cout << std::setw(2) << std::right << (v[i][j] = ++counter) << " ";
+	//	}
+
+	//	std::cout << std::endl;
+	//}
+
+
+
+
+	//auto multi_array = make_multi_array < int, 2U >(v);
+
+	//std::cout << "boost::multi_array\n" << std::endl;
+
+	//for (auto i = 0U; i < size_1; ++i)
+	//{
+	//	for (auto j = 0U; j < size_2; ++j)
+	//	{
+	//		std::cout << std::setw(2) << std::right << multi_array[i][j] << " ";
+	//	}
+
+	//	std::cout << std::endl;
+	//}
+
+	//system("pause");
+
+	//return EXIT_SUCCESS;
