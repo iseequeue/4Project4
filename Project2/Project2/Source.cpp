@@ -6,6 +6,7 @@
 #include <list>
 #include <forward_list>
 #include <algorithm>
+#include <cstdlib>
 template <typename T >
 class Timer
 {
@@ -67,44 +68,56 @@ private:
 
 int main()
 {
-	//std::array<int,100000> array1;
+	std::array<int,100000> array1;
 
-	//std::vector<int> vector1;
-	//vector1.reserve(100000);
+	std::vector<int> vector1;
+	vector1.reserve(100000);
 
 
 	std::deque<int> deque1;
 
-	//std::list<int> list1;
+	std::list<int> list1;
 
 
 
-	//std::forward_list<int> forward_list1;
+	std::forward_list<int> forward_list1;
 
 
 	for (int i = 100000; i > 0; --i)
 	{
-		//array1[i - 1] = 100000 - i;
+	    array1[i - 1] = rand();
 
-		//vector1.push_back(i);
+		vector1.push_back(array1[i-1]);
 
-		deque1.push_back(i);
+		deque1.push_back(array1[i - 1]);
 
-		//list1.push_back(i);
+		list1.push_back(array1[i - 1]);
 
-		//forward_list1.push_front(100000-i);
+		forward_list1.push_front(array1[i - 1]);
 
 	}
-	std::cout << deque1[0] << std::endl;
+	for (auto i = 0; i<100; ++i)
+		std::cout << array1[i] << std::endl;
 
 	{
-		Timer<std::chrono::microseconds> t1("Timer");
+		Timer<std::chrono::microseconds> t1("ARRAY");
+		std::sort(std::begin(array1), std::end(array1));
+	}
+	{
+		Timer<std::chrono::microseconds> t1("VECTOR");
+		std::sort(std::begin(vector1), std::end(vector1));
+	}
+	{
+		Timer<std::chrono::microseconds> t1("DEQUE");
 		std::sort(std::begin(deque1), std::end(deque1));
-		//forward_list1.sort();
-		
-		
-		
-
+	}
+	{
+		Timer<std::chrono::microseconds> t1("LIST");
+		list1.sort();
+	}
+	{
+		Timer<std::chrono::microseconds> t1("FORWARD-LIST");
+		forward_list1.sort();
 	}
 
 }
