@@ -83,21 +83,23 @@ int main()
 	std::forward_list<int> forward_list1;
 
 
-	for (int i = 100000; i > 0; --i)
+	for (int i = 0; i < 100000; ++i)
 	{
-	    array1[i - 1] = rand();
+	    array1[i] = rand();
 
-		vector1.push_back(array1[i-1]);
+		vector1.push_back(array1[i]);
 
-		deque1.push_back(array1[i - 1]);
+		deque1.push_back(array1[i]);
 
-		list1.push_back(array1[i - 1]);
+		list1.push_back(array1[i]);
 
-		forward_list1.push_front(array1[i - 1]);
+		forward_list1.push_front(array1[i]);
 
 	}
+	forward_list1.reverse();
 	for (auto i = 0; i<100; ++i)
 		std::cout << array1[i] << std::endl;
+	std::cout << array1[0] << ' ' << vector1[0] << ' ' << deque1[0] << ' ' << list1.front() << ' ' << forward_list1.front() << std::endl;
 
 	{
 		Timer<std::chrono::microseconds> t1("ARRAY");
