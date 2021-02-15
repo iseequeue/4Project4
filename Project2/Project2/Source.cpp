@@ -70,14 +70,15 @@ int main()
 	//std::array<int,100000> array1;
 	//std::array<int, 1000000> array2;
 
-	//std::vector<int> vector1;
-	//std::vector<int> vector2;*/
+	std::vector<int> vector1;
+	vector1.reserve(100000);
+
 
 	//std::deque<int> deque1;
-	//std::deque<int> deque2;
 
 	//std::list<int> list1;
-	//std::list<int> list2;
+
+
 
 	std::forward_list<int> forward_list1;
 	//std::forward_list<int> forward_list2;*/
