@@ -68,10 +68,9 @@ private:
 int main()
 {
 	//std::array<int,100000> array1;
-	//std::array<int, 1000000> array2;
 
-	std::vector<int> vector1;
-	vector1.reserve(100000);
+	//std::vector<int> vector1;
+	//vector1.reserve(100000);
 
 
 	//std::deque<int> deque1;
@@ -80,31 +79,27 @@ int main()
 
 
 
-	std::forward_list<int> forward_list1;
-	//std::forward_list<int> forward_list2;*/
+	//std::forward_list<int> forward_list1;
+
 
 	for (int i = 100000; i > 0; --i)
 	{
-		//vector1[i - 1] = i;
-		//array2[i - 1] = i;
+		//array1[i - 1] = i;
 
 		//vector1.push_back(i);
-		//vector2.push_back(i);*/
 
 		//deque1.push_back(i);
-		//deque2.push_back(i);
 
 		//list1.push_back(i);
-		//list2.push_back(i);
 
-		forward_list1.push_front(100000-i);
-		//forward_list2.push_front(1000000 - i);*/
+		//forward_list1.push_front(100000-i);
+
 	}
 
 	{
 		Timer<std::chrono::microseconds> t1("Timer");
 		//std::sort(std::begin(list1), std::end(list1));
-		forward_list1.sort();
+		//forward_list1.sort();
 		
 		
 		
