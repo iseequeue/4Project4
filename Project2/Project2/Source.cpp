@@ -73,7 +73,7 @@ int main()
 	//vector1.reserve(100000);
 
 
-	//std::deque<int> deque1;
+	std::deque<int> deque1;
 
 	//std::list<int> list1;
 
@@ -84,21 +84,22 @@ int main()
 
 	for (int i = 100000; i > 0; --i)
 	{
-		//array1[i - 1] = i;
+		//array1[i - 1] = 100000 - i;
 
 		//vector1.push_back(i);
 
-		//deque1.push_back(i);
+		deque1.push_back(i);
 
 		//list1.push_back(i);
 
 		//forward_list1.push_front(100000-i);
 
 	}
+	std::cout << deque1[0] << std::endl;
 
 	{
 		Timer<std::chrono::microseconds> t1("Timer");
-		//std::sort(std::begin(list1), std::end(list1));
+		std::sort(std::begin(deque1), std::end(deque1));
 		//forward_list1.sort();
 		
 		
