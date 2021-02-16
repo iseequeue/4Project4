@@ -27,14 +27,12 @@ void fill_multi_array(const Container& container, Forward_Iterator multi_array)
 		{
 			fill_multi_array < N - 1 >(i, (multi_array++)->begin());
 		}								
-			//*(std::begin(container)+i)
 }
 	else
 	{
-		for (const auto i : container)
+		for (const auto i : container )
 		{
-			*multi_array = i;
-			multi_array++;
+			*(multi_array++) = i;
 		}
 	}
 
