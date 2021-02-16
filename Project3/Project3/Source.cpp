@@ -23,10 +23,11 @@ void fill_multi_array(const Container& container, Forward_Iterator multi_array)
 {
 	if constexpr (N > 1)
 	{
-		for (int i = 0; i < std::size(container); i++) 
+		for (const auto i: container) 
 		{
-			fill_multi_array < N - 1 >(*(std::begin(container)+i), (std::next(multi_array, i)->begin()));
-		}
+			fill_multi_array < N - 1 >(i, (multi_array++)->begin());
+		}								
+			//*(std::begin(container)+i)
 }
 	else
 	{
@@ -36,8 +37,6 @@ void fill_multi_array(const Container& container, Forward_Iterator multi_array)
 			multi_array++;
 		}
 	}
-
-		// Enjoy debugging!
 
 }
 
@@ -106,43 +105,3 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 	}
 }
-
-	//const auto size_1 = 3U;
-	//const auto size_2 = 4U;
-
-	//std::vector < std::vector < int > > v(size_1, std::vector < int >(size_2, 0));
-
-	//std::cout << "std::vector < std::vector < int > >\n" << std::endl;
-
-	//auto counter = 0;
-
-	//for (auto i = 0U; i < size_1; ++i)
-	//{
-	//	for (auto j = 0U; j < size_2; ++j)
-	//	{
-	//		std::cout << std::setw(2) << std::right << (v[i][j] = ++counter) << " ";
-	//	}
-
-	//	std::cout << std::endl;
-	//}
-
-
-
-
-	//auto multi_array = make_multi_array < int, 2U >(v);
-
-	//std::cout << "boost::multi_array\n" << std::endl;
-
-	//for (auto i = 0U; i < size_1; ++i)
-	//{
-	//	for (auto j = 0U; j < size_2; ++j)
-	//	{
-	//		std::cout << std::setw(2) << std::right << multi_array[i][j] << " ";
-	//	}
-
-	//	std::cout << std::endl;
-	//}
-
-	//system("pause");
-
-	//return EXIT_SUCCESS;
