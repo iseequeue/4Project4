@@ -72,7 +72,7 @@ struct Customer_Equal
 
 int main(int argc, char** argv)
 {
-	int N = 676 * 26*26*26;
+	size_t N = 676 * 26*26*26;
 	std::string s;
 	std::vector<std::string> v;
 	v.reserve(N);
@@ -105,10 +105,11 @@ int main(int argc, char** argv)
 
 	}
 	size_t h = 0;
+	N = 1000;
 	for (auto i = 0; i<N;i++)
 	{
 		Customer i1(v[i], i);
-		h = Customer_Hash()(i1)%(N*10);
+		h = Customer_Hash()(i1);
 		collisions += set.count(h);
 		set.insert(h);
 	}
