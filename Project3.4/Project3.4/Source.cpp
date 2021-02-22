@@ -2,6 +2,9 @@
 #include <vector>
 #include <string>
 #include<set>
+#include <random>
+#include <algorithm>
+#include <chrono>
 unsigned int RSHash(const char* str, unsigned int length)
 {
     unsigned int b = 378551;
@@ -141,16 +144,12 @@ unsigned int APHash(const char* str, unsigned int length)
     }
     return hash;
 }
-
+//===============================================================================================
 int main()
 {
-    int N = 308915776;
-    char s[]="aaaaaa";
-    std::vector<char*> v;
-    v.reserve(N);
-    
-
-
+    std::vector<std::string> v;
+    std::string s;
+    v.reserve(676*676*26);
     for (auto i1 = 97; i1 <= 122; i1++)
     {
         for (auto i2 = 97; i2 <= 122; i2++)
@@ -162,53 +161,36 @@ int main()
                 {
                     for (auto i5 = 97; i5 <= 122; i5++)
                     {
-                        for (auto i6 = 97; i6 <= 122; i6++)
-                        {
-                            s[0] = static_cast<char>(i1);
-                            s[1] = static_cast<char>(i2);
-                            s[2] = static_cast<char>(i3);
-                            s[3] = static_cast<char>(i4);
-                            s[4] = static_cast<char>(i5);
-                            s[5] = static_cast<char>(i6);
-                            v.push_back(s);
-                        }
-
-
+                        s.clear();
+                        s.push_back(static_cast<char>(i1));
+                        s.push_back(static_cast<char>(i2));
+                        s.push_back(static_cast<char>(i3));
+                        s.push_back(static_cast<char>(i4));
+                        s.push_back(static_cast<char>(i5));
+                        v.push_back(s);
+                        
                     }
-
                 }
             }
         }
     }
-    
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 
-    size_t collisions_0 = 0;
-    size_t collisions_1 = 0;
-    size_t collisions_2 = 0;
-    size_t collisions_3 = 0;
-    size_t collisions_4 = 0;
-    size_t collisions_5 = 0;
-    size_t collisions_6 = 0;
-    size_t collisions_7 = 0;
-    size_t collisions_8 = 0;
+
     std::set<int> set0;
-    std::set<int> set1;
-    std::set<int> set2;
-    std::set<int> set3;
-    std::set<int> set4;
-    std::set<int> set5;
-    std::set<int> set6;
-    std::set<int> set7;
-    std::set<int> set8;
     size_t h = 0;
-    N = 1000;
-    for ( int i = 0; i < N; i++)
+    int N = 10000000;
+    for (int i = 0; i < N; i++)
     {
-        h = RSHash(v[i],6) % (N * 10);
-        collisions_0 += set0.count(h);
+        h = APHash(v[i].c_str(), 5);
+        //std::cout << h << std::endl;
         set0.insert(h);
+    }
+    std::cout << "RSHash " << N - set0.size() << std::endl;
+}
 
-        h = JSHash(v[i], 6) % (N * 10);
+        /*h = JSHash(v[i], 6) % (N * 10);
         collisions_1 += set1.count(h);
         set1.insert(h);
 
@@ -238,23 +220,22 @@ int main()
 
         h = APHash(v[i], 6) % (N * 10);
         collisions_8 += set8.count(h);
-        set8.insert(h);
+        set8.insert(h);*/
 
 
 
 
-    }
+   // }
 
-    std::cout << "RSHash" << collisions_0 << std::endl;
-    std::cout << "JSHash" << collisions_1 << std::endl;
+    //std::cout << "RSHash " << N - set0.size() << std::endl;
+   /* std::cout << "JSHash" << collisions_1 << std::endl;
     std::cout << "PJWHash" << collisions_2 << std::endl;
     std::cout << "ELFHash" << collisions_3 << std::endl;
     std::cout << "BKDRHash" << collisions_4 << std::endl;
     std::cout << "SDBMHash" << collisions_5 << std::endl;
     std::cout << "DJBHash" << collisions_6 << std::endl;
     std::cout << "DEKHash" << collisions_7 << std::endl;
-    std::cout << "APHash" << collisions_8 << std::endl;
+    std::cout << "APHash" << collisions_8 << std::endl;*/
 
 
 
-}
