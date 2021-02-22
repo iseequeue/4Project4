@@ -3,6 +3,10 @@
 #include <string>
 #include <unordered_set>
 #include <set>
+#include <random>
+#include <algorithm>
+#include <chrono>
+
 template < typename T >
 void hash_combine(std::size_t& seed, const T& value) noexcept
 {
@@ -76,8 +80,7 @@ int main(int argc, char** argv)
 	std::string s;
 	std::vector<std::string> v;
 	v.reserve(N);
-	size_t collisions = 0;
-	std::set<int> set;
+	
 
 
 	for (auto i1 = 97; i1 <= 122; i1++)
@@ -104,17 +107,24 @@ int main(int argc, char** argv)
 		}
 
 	}
-	size_t h = 0;
-	N = 1000;
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle(v.begin(), v.end(), std::default_random_engine(seed));
+	std::set<int> set1;
+
+	/*for (int i = 0; i < 100; i++)
+		std::cout << v[i] << std::endl;*/
+
+
+	size_t h1 = 0;
+	N = 5000000;
 	for (auto i = 0; i<N;i++)
 	{
 		Customer i1(v[i], i);
-		h = Customer_Hash()(i1);
-		collisions += set.count(h);
-		set.insert(h);
+		h1 = Customer_Hash()(i1);
+		set1.insert(h1);
 	}
 	
-	std::cout << collisions << std::endl;
+	std::cout << N - set1.size() << std::endl;
 	
 
 	return EXIT_SUCCESS;
