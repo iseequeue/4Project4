@@ -68,20 +68,27 @@ int main()
 		std::array<int, 1000> a;
 
 		std::cout << "N = " << N << std::endl;
-		for (auto i = N; i > 0; i--)
-		{
-			v.push_back(i);
-			a[N - i - 1] = i;
-		}
+		
 
 		{
 			Timer<std::chrono::microseconds> t1("VECTOR");
+			
+			for (auto i = N; i > 0; i--)
+			{
+				v.push_back(i);
+				//a[N - i - 1] = i;
+			}
 			std::sort(std::begin(v), std::end(v));
 
 		}
 
 		{
 			Timer<std::chrono::microseconds> t1("ARRAY");
+			for (auto i = N; i > 0; i--)
+			{
+				//v.push_back(i);
+				a[N - i - 1] = i;
+			}
 			std::sort(std::begin(a), std::end(a));
 
 		}
@@ -101,20 +108,26 @@ int main()
 		std::array<int, 10000> a;
 
 		std::cout << "N = " << N << std::endl;
-		for (auto i = N; i > 0; i--)
-		{
-			v.push_back(i);
-			a[N - i - 1] = i;
-		}
+		
 
 		{
 			Timer<std::chrono::microseconds> t1("VECTOR");
+			for (auto i = N; i > 0; i--)
+			{
+				v.push_back(i);
+				//a[N - i - 1] = i;
+			}
 			std::sort(std::begin(v), std::end(v));
 
 		}
 
 		{
 			Timer<std::chrono::microseconds> t1("ARRAY");
+			for (auto i = N; i > 0; i--)
+			{
+				//v.push_back(i);
+				a[N - i - 1] = i;
+			}
 			std::sort(std::begin(a), std::end(a));
 
 		}
@@ -135,20 +148,26 @@ int main()
 		std::array<int, 100000> a;
 
 		std::cout << "N = " << N << std::endl;
-		for (auto i = N; i > 0; i--)
-		{
-			v.push_back(i);
-			a[N - i - 1] = i;
-		}
+
 
 		{
 			Timer<std::chrono::microseconds> t1("VECTOR");
+			for (auto i = N; i > 0; i--)
+			{
+				v.push_back(i);
+				//a[N - i - 1] = i;
+			}
 			std::sort(std::begin(v), std::end(v));
 
 		}
 
 		{
 			Timer<std::chrono::microseconds> t1("ARRAY");
+			for (auto i = N; i > 0; i--)
+			{
+				//v.push_back(i);
+				a[N - i - 1] = i;
+			}
 			std::sort(std::begin(a), std::end(a));
 
 		}
