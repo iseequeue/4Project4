@@ -163,178 +163,28 @@ int main()
     std::set<std::string> set1 = makeRandomWords(16);
     const int first = 1000000u;
     const int step = 1000000u;
-
-    for (int j = first; j <=Words; j = j + step)
+    std::vector <std::function<int(const char* , unsigned int )>> v{RSHash, JSHash, PJWHash, ELFHash, BKDRHash, SDBMHash, DJBHash, DEKHash, APHash};
+    for (auto f : v)
     {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
+        for (int j = first; j <= Words; j+=( step))
         {
-            h1 = RSHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
+            std::set<size_t> set;
+            size_t h1 = 0;
+            int k = 0;
+            for (const auto& i : set1)
+            {
+                h1 = f(i.c_str(), 16);
+                set.insert(h1);
+                k++;
+                if (k == j)
+                    break;
+            }
+
+            std::cout << j - set.size() << " ,";
+
         }
-
-        std::cout << j - set.size() << " ,";
-
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = JSHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = PJWHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = ELFHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = BKDRHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = SDBMHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = DJBHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = DEKHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
-
-    for (int j = first; j <= Words; j = j + step)
-    {
-        std::set<int> set;
-        size_t h1 = 0;
-        int k = 0;
-        for (auto i : set1)
-        {
-            h1 = APHash(i.c_str(), 16);
-            set.insert(h1);
-            k++;
-            if (k == j)
-                break;
-        }
-
-        std::cout << j - set.size() << " ,";
-
-    }
-    std::cout << std::endl;
-
 
     return EXIT_SUCCESS;
 }
