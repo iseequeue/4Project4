@@ -1,7 +1,8 @@
+#include <functional>
 #include <iostream>
-#include <vector>
 #include <string>
-#include<set>
+#include <unordered_set>
+#include <set>
 #include <random>
 #include <algorithm>
 #include <chrono>
@@ -145,97 +146,38 @@ unsigned int APHash(const char* str, unsigned int length)
     return hash;
 }
 //===============================================================================================
+std::set<std::string> makeRandomWords(std::size_t N, std::size_t length)
+{
+    std::uniform_int_distribution letter(97, 122);
+    std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
+    std::set<std::string> words;
+    for (std::string str(length, '_'); words.size() <= 10000000u; words.insert(str))
+        for (auto& c : str)
+            c = letter(e);
+    return words;
+}
 int main()
 {
-    std::vector<std::string> v;
-    std::string s;
-    v.reserve(676*676*26);
-    for (auto i1 = 97; i1 <= 122; i1++)
+
+    int N = 10000;
+    std::set<std::string> set1 = makeRandomWords(N, 6);
+
+    for (int j = 1000000; j <= 10000000; j = j + 1000000)
     {
-        for (auto i2 = 97; i2 <= 122; i2++)
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
         {
-            for (auto i3 = 97; i3 <= 122; i3++)
-            {
-                for (auto i4 = 97; i4 <= 122; i4++)
-
-                {
-                    for (auto i5 = 97; i5 <= 122; i5++)
-                    {
-                        s.clear();
-                        s.push_back(static_cast<char>(i1));
-                        s.push_back(static_cast<char>(i2));
-                        s.push_back(static_cast<char>(i3));
-                        s.push_back(static_cast<char>(i4));
-                        s.push_back(static_cast<char>(i5));
-                        v.push_back(s);
-                        
-                    }
-                }
-            }
+            h1 = APHash(i.c_str(), 6);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
         }
-    }
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    shuffle(v.begin(), v.end(), std::default_random_engine(seed));
 
+        std::cout << j << ' ' << j - set.size() << std::endl;
 
-    std::set<int> set0;
-    size_t h = 0;
-    int N = 10000000;
-    for (int i = 0; i < N; i++)
-    {
-        h = APHash(v[i].c_str(), 5);
-        //std::cout << h << std::endl;
-        set0.insert(h);
     }
-    std::cout << "RSHash " << N - set0.size() << std::endl;
+    return EXIT_SUCCESS;
 }
-
-        /*h = JSHash(v[i], 6) % (N * 10);
-        collisions_1 += set1.count(h);
-        set1.insert(h);
-
-        h = PJWHash(v[i], 6) % (N * 10);
-        collisions_2 += set2.count(h);
-        set2.insert(h);
-
-        h = ELFHash(v[i], 6) % (N * 10);
-        collisions_3 += set3.count(h);
-        set3.insert(h);
-
-        h = BKDRHash(v[i], 6) % (N * 10);
-        collisions_4 += set4.count(h);
-        set4.insert(h);
-
-        h = SDBMHash(v[i], 6) % (N * 10);
-        collisions_5 += set5.count(h);
-        set5.insert(h);
-
-        h = DJBHash(v[i], 6) % (N * 10);
-        collisions_6 += set6.count(h);
-        set6.insert(h);
-
-        h = DEKHash(v[i], 6) % (N * 10);
-        collisions_7 += set7.count(h);
-        set7.insert(h);
-
-        h = APHash(v[i], 6) % (N * 10);
-        collisions_8 += set8.count(h);
-        set8.insert(h);*/
-
-
-
-
-   // }
-
-    //std::cout << "RSHash " << N - set0.size() << std::endl;
-   /* std::cout << "JSHash" << collisions_1 << std::endl;
-    std::cout << "PJWHash" << collisions_2 << std::endl;
-    std::cout << "ELFHash" << collisions_3 << std::endl;
-    std::cout << "BKDRHash" << collisions_4 << std::endl;
-    std::cout << "SDBMHash" << collisions_5 << std::endl;
-    std::cout << "DJBHash" << collisions_6 << std::endl;
-    std::cout << "DEKHash" << collisions_7 << std::endl;
-    std::cout << "APHash" << collisions_8 << std::endl;*/
-
-
-
