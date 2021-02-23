@@ -170,6 +170,138 @@ int main()
         int k = 0;
         for (auto i : set1)
         {
+            h1 = RSHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = JSHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = PJWHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = ELFHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = BKDRHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = SDBMHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = DJBHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
             h1 = DEKHash(i.c_str(), 16);
             set.insert(h1);
             k++;
@@ -180,5 +312,28 @@ int main()
         std::cout << j - set.size() << " ,";
 
     }
+    std::cout << std::endl;
+
+
+    for (int j = first; j <= Words; j = j + step)
+    {
+        std::set<int> set;
+        size_t h1 = 0;
+        int k = 0;
+        for (auto i : set1)
+        {
+            h1 = APHash(i.c_str(), 16);
+            set.insert(h1);
+            k++;
+            if (k == j)
+                break;
+        }
+
+        std::cout << j - set.size() << " ,";
+
+    }
+    std::cout << std::endl;
+
+
     return EXIT_SUCCESS;
 }
