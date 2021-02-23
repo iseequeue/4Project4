@@ -146,37 +146,38 @@ unsigned int APHash(const char* str, unsigned int length)
     return hash;
 }
 //===============================================================================================
-std::set<std::string> makeRandomWords(std::size_t N, std::size_t length)
+const int Words = 10000000u;
+std::set<std::string> makeRandomWords(std::size_t length)
 {
     std::uniform_int_distribution letter(97, 122);
     std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
     std::set<std::string> words;
-    for (std::string str(length, '_'); words.size() <= 10000000u; words.insert(str))
+    for (std::string str(length, '_'); words.size() <= Words; words.insert(str))
         for (auto& c : str)
             c = letter(e);
     return words;
 }
 int main()
 {
+    std::set<std::string> set1 = makeRandomWords(16);
+    const int first = 1000000u;
+    const int step = 1000000u;
 
-    int N = 10000;
-    std::set<std::string> set1 = makeRandomWords(N, 6);
-
-    for (int j = 1000000; j <= 10000000; j = j + 1000000)
+    for (int j = first; j <=Words; j = j + step)
     {
         std::set<int> set;
         size_t h1 = 0;
         int k = 0;
         for (auto i : set1)
         {
-            h1 = APHash(i.c_str(), 6);
+            h1 = DEKHash(i.c_str(), 16);
             set.insert(h1);
             k++;
             if (k == j)
                 break;
         }
 
-        std::cout << j << ' ' << j - set.size() << std::endl;
+        std::cout << j - set.size() << " ,";
 
     }
     return EXIT_SUCCESS;
