@@ -74,13 +74,13 @@ struct Customer_Equal
 	}
 };
 
-
-std::set<std::string> makeRandomWords(std::size_t N, std::size_t length)
+const auto Words = 2000000u;
+auto makeRandomWords(std::size_t length)
 {
 	std::uniform_int_distribution letter(97, 122);
 	std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
 	std::set<std::string> words;
-	for (std::string str(length, '_'); words.size() <= 2000000u; words.insert(str))
+	for (std::string str(length, '_'); words.size() <= Words; words.insert(str))
 		for (auto& c : str)
 			c = letter(e);
 	return words;
@@ -88,10 +88,11 @@ std::set<std::string> makeRandomWords(std::size_t N, std::size_t length)
 
 int main(int argc, char** argv)
 {
-	int N = 10000;
-	std::set<std::string> set1 = makeRandomWords(N, 6);
+	std::set<std::string> set1 = makeRandomWords(6);
+	const auto first = 200000u;
+	const auto step = 200000u;
 
-	for (int j = 200000; j <= 2000000; j = j + 200000)
+	for (int j = first; j <= Words; j +=step)
 	{
 		std::set<int> set;
 		size_t h1 = 0;
