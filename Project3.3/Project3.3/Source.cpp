@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 	for (int j = first; j <= Words; j +=step)
 	{
-		std::set<int> set;
+		std::set<size_t> set;
 		size_t h1 = 0;
 		int k = 0;
 		for (auto i : set1)
