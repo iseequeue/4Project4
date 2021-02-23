@@ -166,7 +166,7 @@ int main()
     std::vector <std::function<int(const char* , unsigned int )>> v{RSHash, JSHash, PJWHash, ELFHash, BKDRHash, SDBMHash, DJBHash, DEKHash, APHash};
     for (auto f : v)
     {
-        for (int j = first; j <= Words; j+=( step))
+        for (int j = first; j <= Words; j+=step)
         {
             std::set<size_t> set;
             size_t h1 = 0;
