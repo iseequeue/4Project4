@@ -74,58 +74,39 @@ struct Customer_Equal
 	}
 };
 
+
+std::set<std::string> makeRandomWords(std::size_t N, std::size_t length)
+{
+	std::uniform_int_distribution letter(97, 122);
+	std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
+	std::set<std::string> words;
+	for (std::string str(length, '_'); words.size() <= 2000000u; words.insert(str))
+		for (auto& c : str)
+			c = letter(e);
+	return words;
+}
+
 int main(int argc, char** argv)
 {
-	size_t N = 676 * 26*26*26;
-	std::string s;
-	std::vector<std::string> v;
-	v.reserve(N);
-	
+	int N = 10000;
+	std::set<std::string> set1 = makeRandomWords(N, 6);
 
-
-	for (auto i1 = 97; i1 <= 122; i1++)
+	for (int j = 200000; j <= 2000000; j = j + 200000)
 	{
-		for (auto i2 = 97; i2 <= 122; i2++)
+		std::set<int> set;
+		size_t h1 = 0;
+		int k = 0;
+		for (auto i : set1)
 		{
-			for (auto i3 = 97; i3 <= 122; i3++)
-			{
-				for (auto i4 = 97; i4 <= 122; i4++)
-					
-					{
-					for (auto i5 = 97; i5 <= 122; i5++)
-						{
-							s.clear();
-							s.push_back(static_cast<char>(i1));
-							s.push_back(static_cast<char>(i2));
-							s.push_back(static_cast<char>(i3));
-							s.push_back(static_cast<char>(i4));
-							s.push_back(static_cast<char>(i5));
-							v.push_back(s);
-						}
-					}
-			}
+			h1 = hash_value(k, i);
+			set.insert(h1);
+			k++;
+			if (k == j)
+				break;
 		}
 
+		std::cout << j<<' '<< j - set.size() << std::endl;
+
 	}
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	shuffle(v.begin(), v.end(), std::default_random_engine(seed));
-	std::set<int> set1;
-
-	/*for (int i = 0; i < 100; i++)
-		std::cout << v[i] << std::endl;*/
-
-
-	size_t h1 = 0;
-	N = 5000000;
-	for (auto i = 0; i<N;i++)
-	{
-		Customer i1(v[i], i);
-		h1 = Customer_Hash()(i1);
-		set1.insert(h1);
-	}
-	
-	std::cout << N - set1.size() << std::endl;
-	
-
 	return EXIT_SUCCESS;
 }
