@@ -146,8 +146,8 @@ unsigned int APHash(const char* str, unsigned int length)
     return hash;
 }
 //===============================================================================================
-const int Words = 10000000u;
-std::set<std::string> makeRandomWords(std::size_t length)
+
+std::set<std::string> makeRandomWords(std::size_t length, int Words = 10000000u)
 {
     std::uniform_int_distribution letter(97, 122);
     std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
@@ -159,6 +159,7 @@ std::set<std::string> makeRandomWords(std::size_t length)
 }
 int main()
 {
+    const int Words = 10000000u;
     std::set<std::string> set1 = makeRandomWords(16);
     const int first = 1000000u;
     const int step = 1000000u;
