@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 			unsigned int a = random_access_index.size();
 			unsigned int b = random_access_index.size();
 
-			while ((a > 0) || (a > b) || (b > random_access_index.size() - 1))
+			while (!((a > 0) && (a > b) && (b > random_access_index.size())))
 			{
 				std::cout << "enter range\n left border:\n";
 				std::cin >> a;
