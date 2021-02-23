@@ -73,16 +73,16 @@ int main(int argc, char** argv)
 		case COMMAND_access:
 		{
 			const auto& random_access_index = people.get < 1>();
-			unsigned int a = random_access_index.size();
-			unsigned int b = random_access_index.size();
+			unsigned int a;
+			unsigned int b;
 
-			while (!((a > 0) && (a > b) && (b > random_access_index.size())))
+			do
 			{
 				std::cout << "enter range\n left border:\n";
 				std::cin >> a;
 				std::cout << "enter right border\n";
 				std::cin >> b;
-			}
+			} while ((a > b) || (b > random_access_index.size()));
 			for (int i = a; i <b; i++)
 				std::cout << random_access_index[i].name << ' ' << random_access_index[i].phone << std::endl;
 			break;
@@ -95,10 +95,11 @@ int main(int argc, char** argv)
 			std::cin >> s;
 
 			auto& hashed_name_index = people.get < 0 >();
-			if (hashed_name_index.count(s))
-				std::cout << "number of " << s << " is " << hashed_name_index.find(s)->phone << std::endl;
-			else
+			auto it = hashed_name_index.find(s);
+			if (it == hashed_name_index.end())				
 				std::cout << "number of " << s << " is not found\n";
+			else
+				std::cout << "number of " << s << " is " << hashed_name_index.find(s)->phone << std::endl;
 
 			std::cout << std::endl;
 			break;
