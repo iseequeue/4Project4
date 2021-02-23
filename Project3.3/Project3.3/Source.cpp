@@ -34,46 +34,6 @@ std::size_t hash_value(const Types & ... args) noexcept
 	return seed;
 }
 
-class Customer
-{
-private:
-	friend struct Customer_Hash;
-	friend struct Customer_Equal;
-
-public:
-	explicit Customer(const std::string& name, const std::size_t mark) :
-		m_name(name), m_mark(mark)
-	{}
-
-	~Customer() noexcept = default;
-
-public:
-	friend std::ostream& operator << (std::ostream& stream, const Customer& customer)
-	{
-		return (stream << customer.m_name << "," << customer.m_mark);
-	}
-
-private:
-	std::string m_name;
-	std::size_t m_mark;
-};
-
-struct Customer_Hash
-{
-	std::size_t operator() (const Customer& customer) const noexcept
-	{
-		return hash_value(customer.m_name, customer.m_mark);
-	}
-};
-
-struct Customer_Equal
-{
-	bool operator() (const Customer& lhs, const Customer& rhs) const noexcept
-	{
-		return (lhs.m_name == rhs.m_name);
-	}
-};
-
 const auto Words = 2000000u;
 auto makeRandomWords(std::size_t length)
 {
