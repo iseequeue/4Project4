@@ -34,8 +34,8 @@ std::size_t hash_value(const Types & ... args) noexcept
 	return seed;
 }
 
-const auto Words = 2000000u;
-auto makeRandomWords(std::size_t length)
+
+auto makeRandomWords(std::size_t length, int Words = 2000000)
 {
 	std::uniform_int_distribution letter(97, 122);
 	std::default_random_engine e(static_cast<std::size_t>(std::chrono::system_clock::now().time_since_epoch().count()));
@@ -49,6 +49,7 @@ auto makeRandomWords(std::size_t length)
 int main(int argc, char** argv)
 {
 	std::set<std::string> set1 = makeRandomWords(6);
+	const auto Words = 2000000u;
 	const auto first = 200000u;
 	const auto step = 200000u;
 
