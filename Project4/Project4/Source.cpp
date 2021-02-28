@@ -116,13 +116,13 @@ int main(int argc, char** argv)
 	std::cout << std::distance(std::begin(vector4), it1) << std::endl;
 
 	std::cout << "vector1: ";                                                                    //#20
-	std::for_each(std::begin(vector1), std::end(vector1), [](const auto& x) {std::cout << x << ' '; });   
+	std::copy(std::cbegin(vector1), std::cend(vector1), std::ostream_iterator < int >(std::cout, " "));
 	std::cout << "\n vector2: ";
-	std::for_each(std::begin(vector2), std::end(vector2), [](const auto& x) {std::cout << x << ' '; });
+	std::copy(std::cbegin(vector2), std::cend(vector2), std::ostream_iterator < int >(std::cout, " "));
 	std::cout << "\n vector3: ";
-	std::for_each(std::begin(vector3), std::end(vector3), [](const auto& x) {std::cout << x << ' '; });
+	std::copy(std::cbegin(vector3), std::cend(vector3), std::ostream_iterator < int >(std::cout, " "));
 	std::cout << "\n vector4: ";
-	std::for_each(std::begin(vector4), std::end(vector4), [](const auto& x) {std::cout << x << ' '; });
+	std::copy(std::cbegin(vector4), std::cend(vector4), std::ostream_iterator < int >(std::cout, " "));
 	std::cout << std::endl;
 
 
