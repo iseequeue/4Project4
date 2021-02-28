@@ -30,8 +30,8 @@ int main(int argc, char** argv)
 	std::cout << std::endl;
 
 	std::cout << "unique vector1:  ";
-	std::sort(vector1.begin(), vector1.end());                                                                              //#4
-	vector1.erase(std::unique(vector1.begin(), vector1.end()), vector1.end());
+	std::sort(std::begin(vector1), std::end(vector1));                                                                              //#4
+	vector1.erase(std::unique(vector1.begin(), std::end(vector1)), std::end(vector1));
 	std::for_each(std::begin(vector1), std::end(vector1), [](const auto& x) {std::cout << x << ' '; });
 	std::cout << std::endl;
 
@@ -109,19 +109,12 @@ int main(int argc, char** argv)
 	std::for_each(std::begin(vector4), std::end(vector4), [](const auto& x) {std::cout << x << ' '; });
 	std::cout << std::endl;
 
-	int left = vector4.size() + 1;
-	int right = vector4.size() + 1;
-	for (auto i = 0; i < vector4.size(); i++)
-	{
-		if (vector4[i] == 1 && left > vector4.size())
-			left = i;
-		if (vector4[i] > 1 && right > vector4.size())
-			right = i;
-	}
-	if (left >= right)
-		std::cout << "impossible to insert\n";                                                    //#19
-	else
-		std::cout << "diapason for insert 1: " << left << ' ' << right << std::endl;
+	
+	auto it1 = std::upper_bound(std::begin(vector4), std::end(vector4), 1);            //#19
+	auto it0 = std::find(std::begin(vector4), std::end(vector4), 1);
+	std::cout <<"diapason for 1: " << std::distance(std::begin(vector4), it0) << ' ';
+	std::cout << std::distance(std::begin(vector4), it1) << std::endl;
+
 	std::cout << "vector1: ";                                                                    //#20
 	std::for_each(std::begin(vector1), std::end(vector1), [](const auto& x) {std::cout << x << ' '; });   
 	std::cout << "\n vector2: ";
