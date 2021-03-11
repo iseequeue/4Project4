@@ -3,13 +3,6 @@
 #include <regex>
 #include <string>
 
-bool is_identifier(const std::string& string)
-{
-	std::regex pattern(R"([_[:alpha:]]\w*)");
-
-	return regex_match(string, pattern);
-}
-
 int main(int argc, char** argv)
 {
 	//DD.MM.YYYY
