@@ -1,0 +1,10 @@
+{
+    "add": {
+        "city": "Moscow",
+        "postindex": "61123",
+        "streetad": "Balsh_89"
+    },
+    "firstname": "Ivan",
+    "happy": false,
+    "lastname": "Ivanov"
+}
