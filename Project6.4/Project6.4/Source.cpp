@@ -14,11 +14,9 @@ class Adress
 {
 public:
 	friend std::istream& operator>> (std::istream& in, Adress& add);
-
-
 	std::string city;
 	std::string streetad;
-	 std::string postindex;
+	std::string postindex;
 };
 
 std::istream& operator>> (std::istream& in, Adress& add)
@@ -39,11 +37,12 @@ public:
 };
 std::istream& operator>> (std::istream& in, Person& p)
 {
+	std::cin >> std::boolalpha;
 	in >> p.firstname >> p.lastname >> p.happy>>p.add;
 	return in;
 }
 
-void f(json &j, const Person& p)
+void initialize_json(json &j, const Person& p)
 {
 	j["add"]["city"] = p.add.city;
 	j["add"]["streetad"] = p.add.streetad;
@@ -58,13 +57,11 @@ int main(int argc, char** argv)
 {
 	system("chcp 65001");
 
-
-	int N = 8;
-	
+	int N = 8;	
 
 	auto path = std::filesystem::current_path();
 	std::filesystem::create_directory(path / "directory_1");
-	path = path / "directory_1";
+	path /= "directory_1";
 
 	for (int i = 0; i < N; i++)
 	{
@@ -74,11 +71,9 @@ int main(int argc, char** argv)
 		Person p;
 		json j;
 		std::cin >> p;
-		f(j, p);
+		initialize_json(j, p);
 		fout << std::setw(4) << j;
-	}
-
-	
+	}	
 	//Ivan Ivanov 0 Moscow Balsh_89 61123
 	return EXIT_SUCCESS;
 }
