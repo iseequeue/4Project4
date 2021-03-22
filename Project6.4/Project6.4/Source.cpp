@@ -60,10 +60,17 @@ int main(int argc, char** argv)
 
 
 	int N = 8;
-	std::filesystem::path path_output = "output.txt";
-	std::fstream fout(path_output.string(), std::ios::out);
+	
+
+	auto path = std::filesystem::current_path();
+	std::filesystem::create_directory(path / "directory_1");
+	path = path / "directory_1";
+
 	for (int i = 0; i < N; i++)
 	{
+		std::string s = "output" + std::to_string(i) + ".txt";
+		std::filesystem::path path_output = path/s;
+		std::fstream fout(path_output.string(), std::ios::out);
 		Person p;
 		json j;
 		std::cin >> p;
