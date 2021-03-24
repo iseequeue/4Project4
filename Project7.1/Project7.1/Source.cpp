@@ -2,6 +2,8 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <numeric>
+
 template <typename T >
 class Timer
 {
@@ -73,32 +75,36 @@ void Monte(int N, int& M, std::default_random_engine dre, std::uniform_real_dist
 
 int main()
 {
-	std::default_random_engine dre(std::chrono::system_clock::now().time_since_epoch().count());
+	std::random_device rd;
+	std::mt19937 mersenne(rd());
 	std::uniform_real_distribution<> urd(0, 1);
-	
 
-	int M1 = 0;
-	int m1 = 0;
-	int m2 = 0;
-	int m3 = 0;
-	int m4 = 0;
+	std::cout << std::thread::hardware_concurrency() << std::endl; //4	
 
-	int N = 100000000;
+	int N = 10000000;
 	{
+		int M = 0;
 		Timer<std::chrono::microseconds> T1("Simple");
-		Monte(N, M1, dre, urd);
-		std::cout << M1 * 4.0 / N << std::endl;
+		Monte(N, M, mersenne, urd);
+		std::cout << M * 4.0 / N << std::endl;
 	}
 	{
+		
 		Timer<std::chrono::microseconds> T2("Threads");
-		std::thread t1(Monte, N / 4, std::ref(m1), dre, urd);
-		std::thread t2(Monte, N / 4, std::ref(m2), dre, urd);
-		std::thread t3(Monte, N / 4, std::ref(m3), dre, urd);
-		std::thread t4(Monte, N / 4, std::ref(m4), dre, urd);
-		t1.join();
-		t2.join();
-		t3.join();
-		t4.join();
-		std::cout << (m1 + m2 + m3 + m4) * 4.0 / N << std::endl;
+
+		std::vector<std::thread> threads(std::thread::hardware_concurrency() - 1);
+
+		std::vector<int> m(threads.size(), 0);
+
+		for (auto i = 0u; i < threads.size(); i++)
+		{
+			std::random_device rd1;
+			std::mt19937 mersenne1(rd1());
+			threads[i] = std::thread(Monte, N , std::ref(m[i]), mersenne1, urd);
+		}
+
+		std::for_each(threads.begin(), threads.end(), [](auto& thread) {thread.join(); });
+		
+		std::cout << std::accumulate(m.begin(), m.end(),0) * 4.0 /( N*m.size()) << std::endl;
 	}
 }
