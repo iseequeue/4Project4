@@ -22,32 +22,32 @@ public:
 	{
 		m_begin = clock_t::now();
 		is_stopped = false;
-		std::cout <<  name << " is reset" << std::endl;
+		std::cout << name << " is reset" << std::endl;
 	}
 
 
-	Timer(std::string Name) : m_begin(clock_t::now()), m_duration(0), is_stopped(false), name(Name) 
+	Timer(std::string Name) : m_begin(clock_t::now()), m_duration(0), is_stopped(false), name(Name)
 	{
-		std::cout <<  name << " is started: " << typeid(duration_t).name() << std::endl;
+		std::cout << name << " is started: " << typeid(duration_t).name() << std::endl;
 	}
 
 	~Timer() noexcept
 	{
-			try
+		try
+		{
+			if (!is_stopped)
 			{
-				if (! is_stopped)
-				{
-					auto end = clock_t::now();
-					m_duration += std::chrono::duration_cast<duration_t>(end - m_begin);
-					std::cout <<name << " is stopped: " << m_duration.count()<< std::endl;
-				}
-				//std::cout << typeid(duration_t).name() << ' ' << m_duration.count() << std::endl;
+				auto end = clock_t::now();
+				m_duration += std::chrono::duration_cast<duration_t>(end - m_begin);
+				std::cout << name << " is stopped: " << m_duration.count() << std::endl;
 			}
-			catch (...)
-			{
-				std::abort();
-			}
-		
+			//std::cout << typeid(duration_t).name() << ' ' << m_duration.count() << std::endl;
+		}
+		catch (...)
+		{
+			std::abort();
+		}
+
 	}
 
 private:
@@ -71,7 +71,7 @@ int main()
 		std::sort(std::begin(v), std::end(v));
 		t1.pause();
 		std::vector <int> vv;
-		
+
 		vv.reserve(1000000);
 		for (auto i = 100000; i >= 0; --i)
 		{
