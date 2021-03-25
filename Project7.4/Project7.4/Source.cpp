@@ -7,7 +7,11 @@
 #include <functional>
 #include <chrono>
 #include <iterator>
+
+#include <math.h>
+
 #include <execution>
+
 
 template <typename T >
 class Timer
@@ -64,97 +68,101 @@ private:
 	std::string name;
 };
 
-template < typename Iterator, typename T >
-void parallel_for_each(Iterator first, Iterator last, T f)
+
+
+
+void f(double &x, int row = 100u)
 {
-	const std::size_t length = std::distance(first, last);
-
-	const std::size_t max_size = 25;
-
-	if (length <= max_size)
+	for (int i = 0; i < row; i++)
 	{
-		std::for_each(first, last, f);
+		x += ((x + i) * x * 1.0 / (x * x * x * x + 3 * x) + sin(i) - sin(i * i) + sin(i * i * i) - cos(i))*pow(-1,i);
 	}
-	else
-	{
-		Iterator middle = first;
-		std::advance(middle, length / 2);
-
-		std::future < void > first_half_result = std::async(parallel_for_each < Iterator, T >, first, middle, f);
-
-		first_half_result.get();
-		parallel_for_each(middle, last, f);
-	}
-
 }
 
-void f(double &n)
+long double binary(double x, double y,  unsigned int row = 100u)
 {
-	for (int i = 0; i < 10000; i++)
+	double xx = 1;
+	double yy = 1;
+	for (auto i = 0u; i < row; i++)
 	{
-		n += (n + i) * n* 1.0 / (n*n*n + 3*n);
+		xx += ((x + i) * x * 1.0 / (x * x * x * x + 3 * x) + sin(i) - sin(i * i) + sin(i * i * i) - cos(i)) * pow(-1, i);
+		yy += ((x + i) * x * 1.0 / (x * x * x * x + 3 * x) + sin(i) - sin(i * i) + sin(i * i * i) - cos(i)) * pow(-1, i);
 	}
+	return xx - yy;
 }
 
 int main(int argc, char** argv)
 {
-	/*
-	std::vector < double > v1(1000);
-	std::iota(v1.begin(), v1.end(), 1);
-
-	std::vector < double > v2(10000);
-	std::iota(v2.begin(), v2.end(), 1);
-	{
-		Timer<std::chrono::microseconds> t1("Standart");
-		std::for_each(v1.begin(), v1.end(), [](double& n) { f(n); });
-	}// 164903
-
-	{
-		Timer<std::chrono::microseconds> t1("Parallel");
-		parallel_for_each(v2.begin(), v2.end(), [](double& n) { f(n); });
-	} // 1650566 */
-
-	/*
-	std::vector < double > v(10000000);
-	std::iota(v.begin(), v.end(), 1);
-
+	const auto size = 1'000'000u;	
 	
-	{
-		std::vector <double> a(v.size());
-		Timer<std::chrono::microseconds> t1("partial_sum");
-		std::partial_sum(v.begin(), v.end(), a.begin());
-	} // 290488
-
-	{
-		std::vector <double> a(v.size());
-		Timer<std::chrono::microseconds> t1("inclusive_sum");
-		std::inclusive_scan(v.begin(), v.end(), a.begin());
-	} // 553926*/
-
-
 	
+	/*{
+		std::vector < double > v1(size);
+		std::iota(v1.begin(), v1.end(), 1);
 
-		
+		std::vector < double > v2(size);
+		std::iota(v2.begin(), v2.end(), 1);
+
+		{
+			Timer<std::chrono::microseconds> t1("Standard");
+			std::for_each(v1.begin(), v1.end(), [](double& n) { f(n); });
+		}// 328290289 for 10'000'000
+
+		{
+			Timer<std::chrono::microseconds> t1("Parallel");
+			std::for_each(std::execution::par,v2.begin(), v2.end(), [](double& n) { f(n); });
+		} // 109235421 for 10'000'000 
+	} */
+
+	//=====================================================================================
+	/*{
+		std::vector < double > v1(size);
+		std::iota(v1.begin(), v1.end(), 1);
+
+		std::vector < double > v2(size);
+		std::iota(v2.begin(), v2.end(), 1);
+
+
+		{
+			std::vector <double> a(v1.size());
+			Timer<std::chrono::microseconds> t1("partial_sum");
+			std::partial_sum(v1.begin(), v1.end(), a.begin(), [](double x, double y) {return binary(x, y); });
+		} // 69914942 for 1'000'000
+
+		{
+			std::vector <double> a(v2.size());
+			Timer<std::chrono::microseconds> t1("inclusive_sum");
+			std::inclusive_scan(std::execution::par, v2.begin(), v2.end(), a.begin(), [](double x, double y) {return binary(x, y); });
+		} // 42982437 for 1'000'000
+
+	}
+	*/
+	//========================================================================================
+
 	{
-		std::vector < double > v(10000000);
-		std::vector<int> a(v.size());
-		std::iota(v.begin(), v.end(), 1);
+		{
+			std::vector < double > v(size);
+			std::vector<double> a(v.size());
+			std::iota(v.begin(), v.end(), 1);
 
-		Timer<std::chrono::microseconds> t1("inner_product");
-		
-		std::inner_product(v.begin(), v.end(), a.begin(), 0);
-	} //727881
+			Timer<std::chrono::microseconds> t1("inner_product");
 
-	{
-		std::vector < double > v(10000000);
-		std::vector<int> a(v.size());
-		std::iota(v.begin(), v.end(), 1);
+			std::inner_product(v.begin(), v.end(), a.begin(),0,
+				[](double x, double y) {return binary(x, y); }, [](double x, double y) {return binary(x, y); });
+		}//138462526 for 1'000'000
 
-		Timer<std::chrono::microseconds> t1("transform_reduce");
+		{
+			std::vector < double > v(size);
+			std::vector<double> a(v.size());
+			std::iota(v.begin(), v.end(), 1);
 
-		std::transform_reduce(v.begin(), v.end(), a.begin(), 0);
+			Timer<std::chrono::microseconds> t1("transform_reduce");
 
-	} //84770
+			std::transform_reduce(std::execution::par,v.begin(), v.end(), a.begin(),0,
+				[](double x, double y) {return binary(x, y); }, [](double x, double y) {return binary(x, y); });
+
+		} //44144257 for 1'000'000
+	}
 }
 
 
