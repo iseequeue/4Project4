@@ -75,19 +75,23 @@ void Monte(int N, int& M, std::default_random_engine dre, std::uniform_real_dist
 
 int main()
 {
-	std::random_device rd;
-	std::mt19937 mersenne(rd());
+
 	std::uniform_real_distribution<> urd(0, 1);
 
 	std::cout << std::thread::hardware_concurrency() << std::endl; //4	
 
 	int N = 10000000;
 	{
+		std::random_device rd;
+		std::mt19937 mersenne(rd());
+
 		int M = 0;
 		Timer<std::chrono::microseconds> T1("Simple");
+
 		Monte(N, M, mersenne, urd);
 		std::cout << M * 4.0 / N << std::endl;
 	}
+
 	{
 		
 		Timer<std::chrono::microseconds> T2("Threads");
