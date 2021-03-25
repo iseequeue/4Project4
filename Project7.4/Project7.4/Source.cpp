@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 	const auto size = 1'000'000u;	
 	
 	
-	/*{
+	{
 		std::vector < double > v1(size);
 		std::iota(v1.begin(), v1.end(), 1);
 
@@ -112,10 +112,10 @@ int main(int argc, char** argv)
 			Timer<std::chrono::microseconds> t1("Parallel");
 			std::for_each(std::execution::par,v2.begin(), v2.end(), [](double& n) { f(n); });
 		} // 109235421 for 10'000'000 
-	} */
+	} 
 
 	//=====================================================================================
-	/*{
+	{
 		std::vector < double > v1(size);
 		std::iota(v1.begin(), v1.end(), 1);
 
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 		} // 42982437 for 1'000'000
 
 	}
-	*/
+	
 	//========================================================================================
 
 	{
