@@ -59,15 +59,15 @@ private:
 	std::string name;
 };
 
-void Monte(int N, int& M, std::default_random_engine dre, std::uniform_real_distribution<> urd)
+void Monte(int N, int& M, std::mt19937 mersenne, std::uniform_real_distribution<> urd)
 {
 		double x = 0.0;
 		double y = 0.0;
 		for (auto i = 0U; i < N; i++)
 		{
-			x = urd(dre);
-			y = urd(dre);
-			if (x * x + y * y <= 1)
+			x = urd(mersenne);
+			y = urd(mersenne);
+			if (x * x + y * y <= 1.0)
 				M++;
 		}
 
@@ -76,13 +76,13 @@ void Monte(int N, int& M, std::default_random_engine dre, std::uniform_real_dist
 int main()
 {
 
-	std::uniform_real_distribution<> urd(0, 1);
+	std::uniform_real_distribution<> urd(0.0, 1.0);
+	//std::cout << std::thread::hardware_concurrency() << std::endl; //4	
 
-	std::cout << std::thread::hardware_concurrency() << std::endl; //4	
-
-	int N = 10000000;
+	auto N = 10000000u;
 	{
 		std::random_device rd;
+		std::cout << "seed: " << rd() << std:: endl;
 		std::mt19937 mersenne(rd());
 
 		int M = 0;
@@ -92,17 +92,19 @@ int main()
 		std::cout << M * 4.0 / N << std::endl;
 	}
 
+
 	{
 		
 		Timer<std::chrono::microseconds> T2("Threads");
 
-		std::vector<std::thread> threads(std::thread::hardware_concurrency() - 1);
+		std::vector<std::thread> threads(std::thread::hardware_concurrency());
 
 		std::vector<int> m(threads.size(), 0);
 
 		for (auto i = 0u; i < threads.size(); i++)
 		{
 			std::random_device rd1;
+			std::cout << "seed: " << rd1() << std::endl;
 			std::mt19937 mersenne1(rd1());
 			threads[i] = std::thread(Monte, N , std::ref(m[i]), mersenne1, urd);
 		}
