@@ -4,7 +4,9 @@
 #include <queue>
 #include<iostream>
 
-template < typename T >
+template <  typename T,
+	typename Container = std::vector<T>,
+	typename Compare = std::less<typename Container::value_type>>
 class Threadsafe_Priority_Queue
 {
 public:
@@ -90,7 +92,7 @@ public:
 
 private:
 
-	std::priority_queue < T >		m_priority_queue;
+	std::priority_queue <T,Container,Compare> m_priority_queue;
 	std::condition_variable m_condition_variable;
 
 private:
@@ -109,9 +111,11 @@ void print_queue(T q) { // NB: pass by value so the print uses a copy
 
 int main(int argc, char** argv)
 {
-	Threadsafe_Priority_Queue < int > pq;
+	const auto data = { 1,8,5,6,3,4,0,9,7,2 };
+	Threadsafe_Priority_Queue < int, std::vector<int>, std::greater<int>> pq;
 
 	pq.push(42);
+	pq.push(146);
 
 	auto ptr = pq.wait_and_pop();
 
