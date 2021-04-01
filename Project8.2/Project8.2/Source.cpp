@@ -78,7 +78,7 @@ struct Searcher
 };
 
 template < typename Iterator, typename T >
-void parallel_find(Iterator first, Iterator last, T element, std::vector<Iterator> &result, const Iterator begin)
+void parallel_find(Iterator first, Iterator last, T element, std::vector<Iterator> &result)
 {
 	const std::size_t length = std::distance(first, last);
 
@@ -97,20 +97,8 @@ void parallel_find(Iterator first, Iterator last, T element, std::vector<Iterato
 	{
 		Threads_Guard guard(threads);
 
-		Iterator block_start = first;
-		if (std::distance(begin, first) >= element.size())
-		{
-			block_start = std::prev(first, element.size());
-			/*s1 = global string
-			  s2 = local string
-			  left overlap 
-			  first == local_string.begin()
-			  last == local_string.end()
-			  begin == global_string.begin() - common for all functions
-			  without if -> index error, if is false only for the very left subconsequence, for all the rest it's true
-			*/
-		}
-
+		Iterator block_start = std::prev(first, element.size());
+		
 
 		for (std::size_t i = 0; i < (num_threads - 1); ++i)
 		{
@@ -149,22 +137,22 @@ int main(int argc, char** argv)
 	std::cin >> fragment;
 
 	std::vector<std::string::iterator> result;
-	parallel_find(s.begin(), s.end(), fragment, result, s.begin());
+	parallel_find(s.begin()+fragment.size(), s.end(), fragment, result);
 
 	for (auto i : result) // print numbers entry
 	{
 		std::cout << std::distance(s.begin(), i) << ' ';
 	}
 
-	//for (auto i : result) // check subconsequences that were found (== input)
-	//{
-	//	unsigned int l = std::distance(s.begin(), i);
-	//	for (auto j = 0u; j < fragment.size(); j++)
-	//	{
-	//		std::cout << s[l+j];
-	//	}
-	//	std::cout << std::endl;
-	//}
+	for (auto i : result) // check subconsequences that were found (== input)
+	{
+		unsigned int l = std::distance(s.begin(), i);
+		for (auto j = 0u; j < fragment.size(); j++)
+		{
+			std::cout << s[l+j];
+		}
+		std::cout << std::endl;
+	}
 
 	return EXIT_SUCCESS;
 }
