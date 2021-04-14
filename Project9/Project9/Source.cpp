@@ -42,7 +42,7 @@ public:
         m_users    = m_shared_memory.find_or_construct<counter_t>("m_users")(0);
         m_messages = m_shared_memory.find_or_construct<counter_t>("m_messages")(0);
 
-        m_local_messages = 0; 
+        m_local_messages = *m_messages; 
         ++(*m_users);
     }
 
@@ -103,7 +103,6 @@ private:
         for (const auto& message : *m_vector)
         {
             std::cout << message << std::endl;
-            m_local_messages++;
         }
     }
 
