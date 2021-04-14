@@ -133,7 +133,6 @@ private:
             if (s == "exit")
             {
                 m_local_messages--;
-                //--(*m_users);
                 break;
 
             }
@@ -168,14 +167,11 @@ int main()
 {
     std::string user_name;
 
-    //std::string shared_memory_name = "shared_memory";
-   // boost::interprocess::shared_memory_object::remove(shared_memory_name.c_str());
-
     std::cout << "Enter your name: ";
 
     std::getline(std::cin, user_name);
 
     Chat(user_name).run();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
