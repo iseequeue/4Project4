@@ -156,7 +156,7 @@ private:
 int main()
 {
     std::string user_name;
-
+    boost::interprocess::shared_memory_object::remove("shared_memory");
     std::cout << "Enter your name: ";
 
     std::getline(std::cin, user_name);
