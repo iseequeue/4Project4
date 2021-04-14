@@ -123,22 +123,13 @@ private:
     void write()
     {
         std::string s;
-
-        while (true)
+        std::getline(std::cin, s);
+        while (s!="exit")
         {
-
-            std::getline(std::cin, s);
-
-            if (s == "exit")
-            {
-                m_local_messages--;
-                break;
-
-            }
-
             send_message(s);
-
+            std::getline(std::cin, s);
         }
+        m_local_messages--;
     }
 
 private:
