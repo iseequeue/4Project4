@@ -12,9 +12,11 @@ void write_data(boost::asio::ip::tcp::socket& socket)
 		boost::asio::write(socket, boost::asio::buffer(data + "\n"));
 
 	} while (data != "exit");
+
+	std::cout << "write ended\n";
 }
 
-void read_data_until(boost::asio::ip::tcp::socket& socket)
+void read_data_until(boost::asio::ip::tcp::socket& socket, const std::string &name)
 {
 	while (true)
 	{
@@ -28,10 +30,14 @@ void read_data_until(boost::asio::ip::tcp::socket& socket)
 		std::getline(input_stream, message, '\n');
 		
 		if (message != "exit")
-			std::cout << message << std::endl;
+			std::cout << name <<": " << message << std::endl;
 		else
+		{
+			std::cout << "read ended\n";
 			return;
+		}
 	}
+	
 }
 
 int main(int argc, char** argv)
@@ -42,6 +48,9 @@ int main(int argc, char** argv)
 
 	auto port = 3333;
 
+	std::string name;
+	std::cout << "Enter your name: \n";
+	std::cin >> name;
 	try
 	{
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(raw_ip_address), port);
@@ -53,7 +62,7 @@ int main(int argc, char** argv)
 		socket.connect(endpoint);
 
 		std::thread t(write_data, std::ref(socket));		
-		read_data_until(socket);
+		read_data_until(socket, name);
 		t.join();
 	}
 
