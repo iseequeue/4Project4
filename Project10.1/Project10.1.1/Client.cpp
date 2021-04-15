@@ -12,9 +12,10 @@ void write_data(boost::asio::ip::tcp::socket& socket)
 		boost::asio::write(socket, boost::asio::buffer(data + "\n"));
 
 	} while (data != "exit");
+	std::cout << "write ended\n";
 }
 
-void read_data_until(boost::asio::ip::tcp::socket& socket)
+void read_data_until(boost::asio::ip::tcp::socket& socket, const std::string &name)
 {
 	while (true)
 	{
@@ -28,16 +29,21 @@ void read_data_until(boost::asio::ip::tcp::socket& socket)
 		std::getline(input_stream, message, '\n');
 
 		if (message != "exit")
-			std::cout << message << std::endl;
+			std::cout << name << ": " << message << std::endl;
 		else
+		{
+			std::cout << "read ended\n";
 			return;
+		}
 	}
 }
 
 int main(int argc, char** argv)
 {
 	system("chcp 1251");
-
+	std::string name;
+	std::cout << "Enter your name: \n";
+	std::cin >> name;
 	const std::size_t size = 30;
 
 	auto port = 3333;
@@ -58,7 +64,7 @@ int main(int argc, char** argv)
 
 		acceptor.accept(socket);
 			
-		std::thread t(read_data_until, std::ref(socket));
+		std::thread t(read_data_until, std::ref(socket), std::ref(name));
 		write_data(socket);
 		t.join();
 
