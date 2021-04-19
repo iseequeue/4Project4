@@ -129,7 +129,7 @@ private:
             send_message(s);
             std::getline(std::cin, s);
         }
-        //m_local_messages--;
+
     }
 
 private:
