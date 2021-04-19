@@ -83,7 +83,7 @@ private:
         {
             std::unique_lock lock(*m_mutex);
 
-            m_condition->wait(lock, [this]() {return (m_local_messages < *m_messages); });
+            m_condition->wait(lock, [this]() {return (m_local_messages != *m_messages) || m_exit_flag; });
 
             if (m_exit_flag)
             {
@@ -129,7 +129,7 @@ private:
             send_message(s);
             std::getline(std::cin, s);
         }
-        m_local_messages--;
+        //m_local_messages--;
     }
 
 private:
@@ -156,7 +156,7 @@ private:
 int main()
 {
     std::string user_name;
-    //boost::interprocess::shared_memory_object::remove("shared_memory");
+    boost::interprocess::shared_memory_object::remove("shared_memory");
     std::cout << "Enter your name: ";
 
     std::getline(std::cin, user_name);
