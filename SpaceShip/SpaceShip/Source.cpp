@@ -27,6 +27,9 @@ public:
     const int m_width;
     const int m_height;
     const double deg_to_rad = 0.017453;
+
+private:
+    int amount = 15;
 };
 
 
@@ -37,7 +40,7 @@ private:
     double m_speed;
     std::vector<sf::IntRect> m_frames;
 public:
-    sf::Sprite m_sprite; // public?
+    sf::Sprite m_sprite;
     Animation() = default;
 
     Animation(sf::Texture& t, int x, int y, int w, int h, int count, double speed):
@@ -86,29 +89,34 @@ public:
 class Entity: public System
 {
 public:
-    Animation m_anim; // все публичное, непорядок
-    double m_x;
-    double m_y;
+    Animation m_anim;
+    
     double m_dx;
     double m_dy;
     double m_r;
     double m_angle;
     bool m_life; 
     Objects m_name;
-
+    double m_x;
+    double m_y;
     const double frict1 = 0.2;
-    const double frict2 = 0.9;
+    const double frict2 = 0.99;
 
-    Entity() // списки инициализации?
+private:
+
+
+
+public:
+
+    Entity()
     {
-        m_life = 1;
+        m_life = true;
     }
 
     Entity(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) :
         m_anim(a), m_x(x), m_y(y), m_angle(angle), m_r(radius)
     {  }
 
-    // Эта функция делает работу конструктора, надо сделать конструктор
     void settings(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) 
     {
         m_anim = a;
@@ -177,7 +185,7 @@ private:
 class Bullet : public Entity
 {
 public:
-    Bullet() // списки инициализации, вызов к-ра базового класса?
+    Bullet()
     {
         m_name = Objects::bullet;
     }
@@ -188,17 +196,19 @@ public:
         m_name = Objects::bullet;
     }
 private:
-    void  update() // override?
+    virtual void  update() override
     {
-        m_dx = cos(m_angle * deg_to_rad) * 6; // std:: ...
-        m_dy = sin(m_angle * deg_to_rad) * 6; // std:: ...
-        // angle+=rand()%7-3;  /*try this*/
+        m_dx = std::cos(m_angle * deg_to_rad)*bullet_velocity;
+        m_dy = std::sin(m_angle * deg_to_rad)* bullet_velocity;
+       
         m_x += m_dx;
         m_y += m_dy;
 
         if (m_x > m_width || m_x < 0.0 || m_y > m_height || m_y < 0.0) 
             m_life = false;
     }
+private:
+    int bullet_velocity = 6;
 
 };
 
@@ -207,7 +217,7 @@ class Player : public Entity
 {
 public:
     const int maxSpeed = 15;
-    bool thrust; // публичные данные
+    bool thrust;
     int lives;
     int score;
 
@@ -322,7 +332,7 @@ void System::run()
 
     std::list<std::shared_ptr<Entity>> entities; 
 
-    for (int i = 0; i < 15; i++)
+    for (int i = 0; i < amount; i++)
     {
         Asteroid* a = new Asteroid();
         std::shared_ptr<Asteroid> ptr_a(a);
@@ -417,7 +427,7 @@ void System::run()
             if (e->m_name == Objects::explosion)
                 if (e->m_anim.isEnd()) e->m_life = false;
 
-        if (rand() % 150 == 0)
+        if (rand() % 150 == 0) // new generation
         {
             Asteroid* a = new Asteroid();
             std::shared_ptr<Asteroid> ptr_a(a);
@@ -429,8 +439,8 @@ void System::run()
         {
             std::shared_ptr<Entity> e(*i);
 
-
             e->update();
+
             e->m_anim.update();
 
             if (e->m_life == false)
