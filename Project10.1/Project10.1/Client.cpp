@@ -50,12 +50,12 @@ int main(int argc, char** argv)
 {
 	system("chcp 1251");
 
-	std::string raw_ip_address = "93.175.8.64";
+	std::string raw_ip_address = "93.175.8.189";
 
-	auto port = 9000;
+	auto port = 8000;
 
 	std::string name;
-	std::cout << "Enter your name: ";
+	std::cout << "Enter your name, client: ";
 	std::cin >> name;
 	try
 	{
