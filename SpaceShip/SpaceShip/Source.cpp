@@ -30,6 +30,7 @@ public:
 
 private:
     int amount = 15;
+    int delta_phi = 3;
 };
 
 
@@ -243,6 +244,11 @@ public:
         score++;
     }
 
+    void live_decrease()
+    {
+        lives--;
+    }
+
 private:
     virtual void update() override 
     {
@@ -334,22 +340,20 @@ void System::run()
 
     for (int i = 0; i < amount; i++)
     {
-        Asteroid* a = new Asteroid();
-        std::shared_ptr<Asteroid> ptr_a(a);
-        a->settings(sRock, rand() % m_width, rand() % m_height, rand() % 360, 25);
+        auto ptr_a = std::make_shared<Asteroid>(sRock, rand() % m_width, rand() % m_height, rand() % 360, 25);
         entities.push_back(ptr_a);
     }
 
-    Player* p = new Player();
-    std::shared_ptr<Player> ptr_p(p);
-    ptr_p->settings(sPlayer, 200, 200, 0, 20);
+    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 20);
     entities.push_back(ptr_p);
 
-    text.setString("Score: " + std::to_string(ptr_p->score) + "\nLives: " + std::to_string(ptr_p->lives));
+    
 
     // main loop
     while (app.isOpen() && ptr_p->is_alive())
     {
+        text.setString("Score: " + std::to_string(ptr_p->score) + "\nLives: " + std::to_string(ptr_p->lives));
+
         sf::Event event;
         while (app.pollEvent(event))
         {
@@ -359,15 +363,13 @@ void System::run()
             if (event.type == sf::Event::KeyPressed)
                 if (event.key.code == sf::Keyboard::Space)
                 {
-                    Bullet* b = new Bullet();
-                    std::shared_ptr < Bullet > ptr_b(b);
-                    ptr_b->settings(sBullet, p->m_x, p->m_y, p->m_angle, 10);
+                    auto ptr_b = std::make_shared<Bullet>(sBullet, ptr_p->m_x, ptr_p->m_y, ptr_p->m_angle, 10);
                     entities.push_back(ptr_b);
                 }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) ptr_p->m_angle += 3;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))  ptr_p->m_angle -= 3;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) ptr_p->m_angle += delta_phi;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))  ptr_p->m_angle -= delta_phi;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))    ptr_p->thrust = true;
         else ptr_p->thrust = false;
 
@@ -381,19 +383,17 @@ void System::run()
                         a->m_life = false;
                         b->m_life = false;
 
-                        Entity* e = new Entity();
-                        std::shared_ptr<Entity> ptr_e(e);
-                        ptr_e->settings(sExplosion, a->m_x, a->m_y);
+                        auto ptr_e = std::make_shared<Entity>(sExplosion, a->m_x, a->m_y);
                         ptr_e->m_name = Objects::explosion;
                         entities.push_back(ptr_e);
 
 
                         for (int i = 0; i < 2; i++)
                         {
-                            if (a->m_r == 15) continue;
-                            Entity* e = new Asteroid();
-                            std::shared_ptr<Entity> ptr_e(e);
-                            ptr_e->settings(sRock_small, a->m_x, a->m_y, rand() % 360, 15);
+                            if (a->m_r == 15) 
+                                continue;
+
+                            auto ptr_e = std::make_shared<Asteroid>(sRock_small, a->m_x, a->m_y, rand() % 360, 15);
                             entities.push_back(ptr_e);
                         }
 
@@ -406,21 +406,26 @@ void System::run()
                     {
                         b->m_life = false;
 
-                        Entity* e = new Entity();
-                        std::shared_ptr<Entity> ptr_e(e);
-                        ptr_e->settings(sExplosion_ship, a->m_x, a->m_y);
+                        auto ptr_e = std::make_shared<Entity>(sExplosion_ship, a->m_x, a->m_y);
+
                         ptr_e->m_name = Objects::explosion;
                         entities.push_back(ptr_e);
 
                         ptr_p->settings(sPlayer, m_width / 2, m_height / 2, 0, 20);
-                        ptr_p->m_dx = 0; ptr_p->m_dy = 0;
-                        ptr_p->lives--;
+
+                        ptr_p->m_dx = 0; 
+
+                        ptr_p->m_dy = 0;
+
+                        ptr_p->live_decrease();
                     }
             }
 
 
-        if (ptr_p->thrust)  ptr_p->m_anim = sPlayer_go;
-        else   ptr_p->m_anim = sPlayer;
+        if (ptr_p->thrust)  
+            ptr_p->m_anim = sPlayer_go;
+        else   
+            ptr_p->m_anim = sPlayer;
 
 
         for (auto e : entities)
@@ -429,9 +434,7 @@ void System::run()
 
         if (rand() % 150 == 0) // new generation
         {
-            Asteroid* a = new Asteroid();
-            std::shared_ptr<Asteroid> ptr_a(a);
-            ptr_a->settings(sRock, 0, rand() % m_height, rand() % 360, 25);
+            auto ptr_a = std::make_shared<Asteroid>(sRock, 0, rand() % m_height, rand() % 360, 25);
             entities.push_back(ptr_a);
         }
 
