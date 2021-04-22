@@ -222,18 +222,14 @@ public:
     int lives;
     int score;
 
-    Player()
+    Player(): lives(9), score(0)
     {
-        lives = 9;
-        score = 0;
         m_name = Objects::player;
     }
 
     Player(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0):
-        Entity(a, x, y, angle, radius)
+        Entity(a, x, y, angle, radius), lives(9), score(0)
     {
-        lives = 9;
-        score = 0;
         m_name = Objects::player;
     }
 
@@ -344,7 +340,7 @@ void System::run()
         entities.push_back(ptr_a);
     }
 
-    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 20);
+    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 0);
     entities.push_back(ptr_p);
 
     
