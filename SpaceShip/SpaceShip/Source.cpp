@@ -40,6 +40,7 @@ private:
     double m_frame;
     double m_speed;
     std::vector<sf::IntRect> m_frames;
+
 public:
     sf::Sprite m_sprite;
     Animation() = default;
@@ -331,16 +332,22 @@ void System::run()
     Animation sRock_small    (t6, 0, 0, 64, 64, 16, 0.2);
     Animation sExplosion_ship(t7, 0, 0, 192, 192, 64, 0.5);
 
+    std::random_device rd;
+    std::mt19937 mersenne(rd());
+
+    std::uniform_int_distribution<int> uid1(0, m_width);
+    std::uniform_int_distribution<int> uid2(0, m_height);
+    std::uniform_int_distribution<int> uid3(0, 360);
 
     std::list<std::shared_ptr<Entity>> entities; 
 
     for (int i = 0; i < amount; i++)
     {
-        auto ptr_a = std::make_shared<Asteroid>(sRock, rand() % m_width, rand() % m_height, rand() % 360, 25);
+        auto ptr_a = std::make_shared<Asteroid>(sRock, uid1(mersenne), uid2(mersenne), uid3(mersenne), 25);
         entities.push_back(ptr_a);
     }
 
-    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 0);
+    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 20);
     entities.push_back(ptr_p);
 
     
@@ -389,7 +396,7 @@ void System::run()
                             if (a->m_r == 15) 
                                 continue;
 
-                            auto ptr_e = std::make_shared<Asteroid>(sRock_small, a->m_x, a->m_y, rand() % 360, 15);
+                            auto ptr_e = std::make_shared<Asteroid>(sRock_small, a->m_x, a->m_y, uid3(mersenne), 15);
                             entities.push_back(ptr_e);
                         }
 
@@ -428,9 +435,9 @@ void System::run()
             if (e->m_name == Objects::explosion)
                 if (e->m_anim.isEnd()) e->m_life = false;
 
-        if (rand() % 150 == 0) // new generation
+        if (uid3(mersenne) % 150 == 0) // new generation
         {
-            auto ptr_a = std::make_shared<Asteroid>(sRock, 0, rand() % m_height, rand() % 360, 25);
+            auto ptr_a = std::make_shared<Asteroid>(sRock, 0, uid2(mersenne), uid3(mersenne), 25);
             entities.push_back(ptr_a);
         }
 
