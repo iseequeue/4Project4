@@ -6,442 +6,403 @@
 #include <memory>
 #include <random>
 
-enum class Objects
+
+
+namespace asteroids
 {
-    asteroid,
-    bullet,
-    player,
-    explosion
-};
-
-class System
-{
-public:
-
-    System(int width = sf::VideoMode::getDesktopMode().width, int height = sf::VideoMode::getDesktopMode().height)
-        : m_width(width), m_height(height)
-    {   }
-
-    void run();
-
-    const int m_width;
-    const int m_height;
-    const double deg_to_rad = 0.017453;
-
-private:
-    int amount = 15;
-    int delta_phi = 3;
-};
-
-
-class Animation: public System
-{
-private:
-    double m_frame;
-    double m_speed;
-    std::vector<sf::IntRect> m_frames;
-
-public:
-    sf::Sprite m_sprite;
-    Animation() = default;
-
-    Animation(sf::Texture& t, int x, int y, int w, int h, int count, double speed):
-        m_frame(0), m_speed(speed)
+    enum class Objects
     {
-        for (int i = 0; i < count; i++)
-            m_frames.push_back(sf::IntRect(x + i * w, y, w, h));
+        asteroid,
+        bullet,
+        player,
+        explosion
+    };
 
-        m_sprite.setTexture(t);
-        m_sprite.setOrigin(w / 2, h / 2);
-        m_sprite.setTextureRect(m_frames[0]);
-    }
 
-    Animation& operator =(const Animation& other)
+
+    class Constants
     {
-        m_frame = other.m_frame;
-        m_speed = other.m_speed;
-        m_sprite = other.m_sprite;
-        m_frames = other.m_frames;
+    public:
 
-        return *this;
-    }
+        explicit Constants(int width = sf::VideoMode::getDesktopMode().width, int height = sf::VideoMode::getDesktopMode().height,
+            int am = 15, int del = 3, int br = 25, int sr = 15)
+            : m_width(width), m_height(height), amount(am), delta_phi(del), big_rad(br), small_rad(sr)
+        {   }
 
-    void update()
+        const int m_width;
+        const int m_height;
+
+        const int big_rad;
+        const int small_rad;
+
+        static constexpr float deg_to_rad = 0.017453f;
+        static const int myRand = 150;
+
+        int amount;
+        int delta_phi;
+    };
+
+    class Animation
     {
-        m_frame += m_speed;
+    public:
+        sf::Sprite m_sprite;
 
-        if (m_frame >= m_frames.size())
+        explicit Animation(sf::Texture& t, int x, int y, int w, int h, int count, float speed) :
+            m_frame(0), m_speed(speed)
         {
-            m_frame -= m_frames.size();
+            for (int i = 0; i < count; i++)
+            {
+                m_frames.push_back(sf::IntRect(x + i * w, y, w, h));
+            }
+
+            m_sprite.setTexture(t);
+            m_sprite.setOrigin(w / 2.0f, h / 2.0f);
+            m_sprite.setTextureRect(m_frames[0]);
         }
-        if (m_frames.size() > 0)
+
+        Animation& operator =(const Animation& other) = default;
+      
+
+        void update()
         {
-            m_sprite.setTextureRect(m_frames[floor(m_frame)]);
+            m_frame += m_speed;
+
+            if (m_frame >= m_frames.size())
+            {
+                m_frame -= m_frames.size();
+            }
+            if (m_frames.size() > 0)
+            {
+                m_sprite.setTextureRect(m_frames[static_cast<int>(m_frame)]);
+            }
         }
-    }
-public:
-    bool isEnd() const
+    public:
+        bool isEnd() const
+        {
+            return (m_frame + m_speed >= m_frames.size());
+        }
+
+    private:
+        float m_frame;
+        float m_speed;
+        std::vector<sf::IntRect> m_frames;
+
+    };
+
+
+    class Entity : public Constants
     {
-        return (m_frame + m_speed >= m_frames.size());
-    }
+    public:
+        explicit Entity(Objects o, Animation& a, float x, float y, float angle = 0.0, float radius = 1.0) :
+            m_anim(a), m_x(x), m_y(y), m_angle(angle), m_r(radius), m_type(o)
+        {  }
 
-};
+        virtual void update() {};
+
+        void draw(sf::RenderWindow& app)
+        {
+            m_anim.m_sprite.setPosition(m_x, m_y);
+            m_anim.m_sprite.setRotation(m_angle + 90);
+            app.draw(m_anim.m_sprite);
+        }
+
+        virtual ~Entity() noexcept = default;
+
+    public:
+        Animation m_anim;
+
+        float m_dx;
+        float m_dy;
+        float m_r;
+        float m_angle;
+        bool m_life;
+        Objects m_type;
+        float m_x;
+        float m_y;
+        static constexpr float spaceship_accelerate = 0.2f;
+        static constexpr float spaceship_brake = 0.99f;
+    };
 
 
-class Entity: public System
-{
-public:
-    Animation m_anim;
-    
-    double m_dx;
-    double m_dy;
-    double m_r;
-    double m_angle;
-    bool m_life; 
-    Objects m_name;
-    double m_x;
-    double m_y;
-    const double frict1 = 0.2;
-    const double frict2 = 0.99;
-
-private:
-
-
-
-public:
-
-    Entity()
+    class Asteroid : public Entity
     {
-        m_life = true;
-    }
+    public:
+        explicit Asteroid(std::mt19937 mersenne, std::uniform_real_distribution<float> uid, 
+            Animation& a, float x, float y, float angle = 0.0, float radius = 1.0) :
+            Entity(Objects::asteroid, a, x, y, angle, radius)
+        {
+            m_dx = uid(mersenne);       //goes to based class
+            m_dy = uid(mersenne);     
+        }
 
-    Entity(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) :
-        m_anim(a), m_x(x), m_y(y), m_angle(angle), m_r(radius)
-    {  }
+    private:
+        virtual void update()
+        {
+            m_x += m_dx;
+            m_y += m_dy;
 
-    void settings(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) 
+            if (m_x > m_width) m_x = 0;
+            if (m_x < 0) m_x = m_width * 1.0f;
+
+            if (m_y > m_height) m_y = 0;
+            if (m_y < 0) m_y = m_height * 1.0f;
+        }
+    };
+
+
+    class Bullet : public Entity
     {
-        m_anim = a;
-        m_x = x; 
-        m_y = y;
-        m_angle = angle;
-        m_r = radius;
-    }
+    public:
 
-    virtual void update() {};
+        explicit Bullet(Animation& a, float x, float y, float angle = 0.0, float radius = 1.0) :
+            Entity(Objects::bullet, a, x, y, angle, radius)
+        {   }
 
-    void draw(sf::RenderWindow& app)
+    private:
+        virtual void  update()
+        {
+            m_dx = std::cos(m_angle * deg_to_rad) * bullet_velocity;
+            m_dy = std::sin(m_angle * deg_to_rad) * bullet_velocity;
+
+            m_x += m_dx;
+            m_y += m_dy;
+
+            if (m_x > m_width || m_x < 0.0 || m_y > m_height || m_y < 0.0)
+                m_life = false;
+        }
+    private:
+        const int bullet_velocity = 6;
+
+    };
+
+
+    class Player : public Entity
     {
-        m_anim.m_sprite.setPosition(m_x, m_y);
-        m_anim.m_sprite.setRotation(m_angle + 90);
-        app.draw(m_anim.m_sprite);
-    }
-
-    virtual ~Entity() = default;
-};
-
-
-class Asteroid : public Entity
-{
-public:
-    Asteroid()
-    { 
-        std::random_device rd;
-        std::mt19937 mersenne(rd());
-
-        std::uniform_int_distribution<int> uid(-4, 4);
-        m_dx = uid(mersenne);
-        m_dy = uid(mersenne);
-        m_name = Objects::asteroid;
-    }
-
-    Asteroid(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) :
-        Entity(a, x, y, angle, radius)
-    {
-        m_name = Objects::asteroid;
-        std::random_device rd;
-        std::mt19937 mersenne(rd());
-
-        std::uniform_int_distribution<int> uid(-4, 4);
-        m_dx = uid(mersenne);
-        m_dy = uid(mersenne);
-        m_name = Objects::asteroid;
-    }
-
-private:
-    virtual void update() override
-    {
-        m_x += m_dx;
-        m_y += m_dy;
-
-        if (m_x > m_width) m_x = 0; 
-        if (m_x < 0) m_x = m_width;
-        
-        if (m_y > m_height) m_y = 0; 
-        if (m_y < 0) m_y = m_height;
-    }
-
-};
-
-
-class Bullet : public Entity
-{
-public:
-    Bullet()
-    {
-        m_name = Objects::bullet;
-    }
-    
-    Bullet(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0) :
-        Entity(a, x, y, angle, radius)
-    {
-        m_name = Objects::bullet;
-    }
-private:
-    virtual void  update() override
-    {
-        m_dx = std::cos(m_angle * deg_to_rad)*bullet_velocity;
-        m_dy = std::sin(m_angle * deg_to_rad)* bullet_velocity;
+    public:
        
-        m_x += m_dx;
-        m_y += m_dy;
+        explicit Player(Animation& a, float x, float y, float angle = 0.0, float radius = 1.0f) :
+            Entity(Objects::player, a, x, y, angle, radius), lives(9), score(0), thrust(true)
+        {   }
 
-        if (m_x > m_width || m_x < 0.0 || m_y > m_height || m_y < 0.0) 
-            m_life = false;
-    }
-private:
-    int bullet_velocity = 6;
+        bool is_alive() { return (lives > 0); }
 
-};
-
-
-class Player : public Entity
-{
-public:
-    const int maxSpeed = 15;
-    bool thrust;
-    int lives;
-    int score;
-
-    Player(): lives(9), score(0)
-    {
-        m_name = Objects::player;
-    }
-
-    Player(Animation& a, int x, int y, double angle = 0.0, int radius = 1.0):
-        Entity(a, x, y, angle, radius), lives(9), score(0)
-    {
-        m_name = Objects::player;
-    }
-
-    const bool is_alive() { return (lives > 0); }
-
-    void score_increase()
-    {
-        score++;
-    }
-
-    void live_decrease()
-    {
-        lives--;
-    }
-
-private:
-    virtual void update() override 
-    {
-        if (thrust)
+        void score_increase()
         {
-            m_dx += std::cos(m_angle * deg_to_rad) * frict1;
-            m_dy += std::sin(m_angle * deg_to_rad) * frict1;
+            score++;
+        }
+
+        void live_decrease()
+        {
+            lives--;
+        }
+
+        const int maxSpeed = 15;
+        bool thrust;
+        int lives;
+        int score;
+
+    private:
+        virtual void update()
+        {
+            if (thrust)
+            {
+                m_dx += std::cos(m_angle * deg_to_rad) * spaceship_accelerate;
+                m_dy += std::sin(m_angle * deg_to_rad) * spaceship_accelerate;
+            }
+            else
+            {
+                m_dx *= spaceship_brake;
+                m_dy *= spaceship_brake;
+            }
+
+            float speed = std::sqrt(m_dx * m_dx + m_dy * m_dy);
+            if (speed > maxSpeed)
+            {
+                m_dx *= maxSpeed / speed;
+                m_dy *= maxSpeed / speed;
+            }
+
+            m_x += m_dx;
+            m_y += m_dy;
+
+            if (m_x > m_width)
+            {
+                m_x = 0.0;
+            }
+            if (m_x < 0.0)
+            {
+                m_x = m_width * 1.0f;
+            }
+
+            if (m_y > m_height)
+            {
+                m_y = 0.0;
+            }
+            if (m_y < 0.0)
+            {
+                m_y = m_height * 1.0f;
+            }
+        }
+
+    };
+
+
+    bool isCollide(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
+    {
+        return (b->m_x - a->m_x) * (b->m_x - a->m_x) + (b->m_y - a->m_y) * (b->m_y - a->m_y) <
+            (a->m_r + b->m_r) * (a->m_r + b->m_r);
+    }
+
+    class System : public Constants
+    {
+    public:
+
+        explicit System():
+            sPlayer        (t1, 40, 0, 40, 40, 1, 0), 
+            sPlayer_go     (t1, 40, 40, 40, 40, 1, 0), 
+            sExplosion     (t3, 0, 0, 256, 256, 48, 0.5f),
+            sRock          (t4, 0, 0, 64, 64, 16, 0.2f),
+            sBullet        (t5, 0, 0, 32, 64, 16, 0.8f),
+            sRock_small    (t6, 0, 0, 64, 64, 16, 0.2f),
+            sExplosion_ship(t7, 0, 0, 192, 192, 64, 0.5f),
+
+            app(sf::VideoMode(m_width, m_height), "MyAsteroids"),
+            ptr_p(std::make_shared<Player>(sPlayer, 200, 200, 0, 20)),
+            mersenne(rd()),
+            uid0(-4.0f, 4.0f),
+            uid1(0, m_width),
+            uid2(0, m_height),
+            uid3(0, 360)
+
+
+        {  
+            t1.loadFromFile("images/spaceship.png");
+            t2.loadFromFile("images/background.jpg");
+            t3.loadFromFile("images/explosions/type_C.png");
+            t4.loadFromFile("images/rock.png");
+            t5.loadFromFile("images/fire_blue.png");
+            t6.loadFromFile("images/rock_small.png");
+            t7.loadFromFile("images/explosions/type_B.png");
+
+            if (!font.loadFromFile("arial.ttf"))
+            {
+                std::cerr << "error..." << std::endl;
+            }
+
+            text.setFont(font);
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::Red);
+            text.setPosition(50, 50);
+
+            app.setFramerateLimit(60);
+
+            t1.setSmooth(true);
+            t2.setSmooth(true);
+
+            for (int i = 0; i < amount; i++)
+            {
+                entities.push_back(std::make_shared<Asteroid>(mersenne, uid0, sRock, uid1(mersenne), uid2(mersenne), uid3(mersenne), big_rad));
+            }
+            entities.push_back(ptr_p);
+        }
+
+        void run();
+
+        void vsAst_Bul(std::shared_ptr<Entity> a, std::shared_ptr<Entity>);
+
+        void vsPl_Ast(std::shared_ptr<Entity> a, std::shared_ptr<Entity>);
+
+        void global_update();
+
+        Animation sPlayer, sPlayer_go, sExplosion, sRock, sBullet, sRock_small, sExplosion_ship;
+        sf::Texture t1, t2, t3, t4, t5, t6, t7;
+        sf::Font font;
+        sf::Text text;
+        sf::RenderWindow app;
+
+        std::list<std::shared_ptr<Entity>> entities;
+        std::shared_ptr<Player> ptr_p;
+
+        std::random_device rd;
+        std::mt19937 mersenne;
+        std::uniform_real_distribution<float> uid0;
+        std::uniform_int_distribution<int> uid1;
+        std::uniform_int_distribution<int> uid2;
+        std::uniform_int_distribution<int> uid3;
+
+       
+    };
+
+    void System::vsAst_Bul(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
+    {
+        if (isCollide(a, b))
+        {
+            a->m_life = false;
+            b->m_life = false;
+
+            entities.push_back(std::make_shared<Entity>(Objects::explosion, sExplosion, a->m_x, a->m_y));
+
+
+            for (int i = 0; i < 2; i++)
+            {
+                if (a->m_r == small_rad)
+                {
+                    continue;
+                }
+
+                entities.push_back(std::make_shared<Asteroid>(mersenne, uid0, sRock_small, a->m_x, a->m_y, uid3(mersenne), small_rad));
+            }
+
+            ptr_p->score_increase();
+
+        }
+    }
+
+    void System::vsPl_Ast(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
+    {
+        if (isCollide(a, b))
+        {
+            b->m_life = false;
+
+            entities.push_back(std::make_shared<Entity>(Objects::explosion, sExplosion, a->m_x, a->m_y));
+
+            ptr_p->m_anim = sPlayer;
+            ptr_p->m_x = m_width / 2.0f;
+            ptr_p->m_x = m_height / 2.0f;
+            ptr_p->m_angle = 0.0f;
+            ptr_p->m_r = 20.0f;
+            ptr_p->m_dx = 0;
+            ptr_p->m_dy = 0;
+            ptr_p->live_decrease();
+        }
+    }
+
+    void System::global_update()
+    {
+        if (ptr_p->thrust)             // player movement
+        {
+            ptr_p->m_anim = sPlayer_go;
         }
         else
         {
-            m_dx *= frict2;
-            m_dy *= frict2;
-        }
-
-        double speed = std::sqrt(m_dx * m_dx + m_dy * m_dy);
-        if (speed > maxSpeed)
-        {
-            m_dx *= maxSpeed / speed;
-            m_dy *= maxSpeed / speed;
-        }
-
-        m_x += m_dx;
-        m_y += m_dy;
-
-        if (m_x > m_width) 
-            m_x = 0.0; 
-        if (m_x < 0.0)
-            m_x = m_width;
-
-        if (m_y > m_height)
-            m_y = 0.0;
-        if (m_y < 0.0)
-            m_y = m_height;
-    }
-
-};
-
-
-bool isCollide(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
-{
-    return (b->m_x - a->m_x) * (b->m_x - a->m_x) +
-        (b->m_y - a->m_y) * (b->m_y - a->m_y) <
-        (a->m_r + b->m_r) * (a->m_r + b->m_r);
-}
-
-void System::run()
-{
-    sf::Font font;
-
-    if (!font.loadFromFile("arial.ttf"))
-    {
-        std::cerr << "error..." << std::endl;
-    }
-
-    sf::Text text;
-    text.setFont(font); 
-    text.setCharacterSize(24);
-    text.setFillColor(sf::Color::Red); 
-    text.setPosition(50, 50);
-    text.setRotation(2);
-
-    sf::RenderWindow app(sf::VideoMode(m_width, m_height), "MyAsteroids");
-    app.setFramerateLimit(60);
-
-    sf::Texture t1, t2, t3, t4, t5, t6, t7;
-    t1.loadFromFile("images/spaceship.png");
-    t2.loadFromFile("images/background.jpg");
-    t3.loadFromFile("images/explosions/type_C.png");
-    t4.loadFromFile("images/rock.png");
-    t5.loadFromFile("images/fire_blue.png");
-    t6.loadFromFile("images/rock_small.png");
-    t7.loadFromFile("images/explosions/type_B.png");
-
-    t1.setSmooth(true);
-    t2.setSmooth(true);
-
-    sf::Sprite background(t2);
-
-    Animation sPlayer        (t1, 40, 0, 40, 40, 1, 0);
-    Animation sPlayer_go     (t1, 40, 40, 40, 40, 1, 0);
-    Animation sExplosion     (t3, 0, 0, 256, 256, 48, 0.5);
-    Animation sRock          (t4, 0, 0, 64, 64, 16, 0.2);
-    Animation sBullet        (t5, 0, 0, 32, 64, 16, 0.8);
-    Animation sRock_small    (t6, 0, 0, 64, 64, 16, 0.2);
-    Animation sExplosion_ship(t7, 0, 0, 192, 192, 64, 0.5);
-
-    std::random_device rd;
-    std::mt19937 mersenne(rd());
-
-    std::uniform_int_distribution<int> uid1(0, m_width);
-    std::uniform_int_distribution<int> uid2(0, m_height);
-    std::uniform_int_distribution<int> uid3(0, 360);
-
-    std::list<std::shared_ptr<Entity>> entities; 
-
-    for (int i = 0; i < amount; i++)
-    {
-        auto ptr_a = std::make_shared<Asteroid>(sRock, uid1(mersenne), uid2(mersenne), uid3(mersenne), 25);
-        entities.push_back(ptr_a);
-    }
-
-    auto ptr_p = std::make_shared<Player>(sPlayer, 200, 200, 0, 20);
-    entities.push_back(ptr_p);
-
-    
-
-    // main loop
-    while (app.isOpen() && ptr_p->is_alive())
-    {
-        text.setString("Score: " + std::to_string(ptr_p->score) + "\nLives: " + std::to_string(ptr_p->lives));
-
-        sf::Event event;
-        while (app.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                app.close();
-
-            if (event.type == sf::Event::KeyPressed)
-                if (event.key.code == sf::Keyboard::Space)
-                {
-                    auto ptr_b = std::make_shared<Bullet>(sBullet, ptr_p->m_x, ptr_p->m_y, ptr_p->m_angle, 10);
-                    entities.push_back(ptr_b);
-                }
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) ptr_p->m_angle += delta_phi;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))  ptr_p->m_angle -= delta_phi;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))    ptr_p->thrust = true;
-        else ptr_p->thrust = false;
-
-
-        for (auto a : entities)
-            for (auto b : entities)
-            {
-                if (a->m_name == Objects::asteroid && b->m_name == Objects::bullet)
-                    if (isCollide(a, b))
-                    {
-                        a->m_life = false;
-                        b->m_life = false;
-
-                        auto ptr_e = std::make_shared<Entity>(sExplosion, a->m_x, a->m_y);
-                        ptr_e->m_name = Objects::explosion;
-                        entities.push_back(ptr_e);
-
-
-                        for (int i = 0; i < 2; i++)
-                        {
-                            if (a->m_r == 15) 
-                                continue;
-
-                            auto ptr_e = std::make_shared<Asteroid>(sRock_small, a->m_x, a->m_y, uid3(mersenne), 15);
-                            entities.push_back(ptr_e);
-                        }
-
-                        ptr_p->score_increase();
-
-                    }
-
-                if (a->m_name == Objects::player && b->m_name == Objects::asteroid)
-                    if (isCollide(a, b))
-                    {
-                        b->m_life = false;
-
-                        auto ptr_e = std::make_shared<Entity>(sExplosion_ship, a->m_x, a->m_y);
-
-                        ptr_e->m_name = Objects::explosion;
-                        entities.push_back(ptr_e);
-
-                        ptr_p->settings(sPlayer, m_width / 2, m_height / 2, 0, 20);
-
-                        ptr_p->m_dx = 0; 
-
-                        ptr_p->m_dy = 0;
-
-                        ptr_p->live_decrease();
-                    }
-            }
-
-
-        if (ptr_p->thrust)  
-            ptr_p->m_anim = sPlayer_go;
-        else   
             ptr_p->m_anim = sPlayer;
-
-
-        for (auto e : entities)
-            if (e->m_name == Objects::explosion)
-                if (e->m_anim.isEnd()) e->m_life = false;
-
-        if (uid3(mersenne) % 150 == 0) // new generation
-        {
-            auto ptr_a = std::make_shared<Asteroid>(sRock, 0, uid2(mersenne), uid3(mersenne), 25);
-            entities.push_back(ptr_a);
         }
 
-        for (auto i = entities.begin(); i != entities.end();)
+        for (auto e : entities)          // explosions
+        {
+            if (e->m_type == Objects::explosion)
+            {
+                if (e->m_anim.isEnd()) e->m_life = false;
+            }
+        }
+
+        if (uid3(mersenne) % myRand == 0) // new asteroid generation
+        {
+
+            entities.push_back(std::make_shared<Asteroid>(mersenne, uid0, sRock, 0, uid2(mersenne), uid3(mersenne), big_rad));
+        }
+
+        for (auto i = entities.begin(); i != entities.end();) 
         {
             std::shared_ptr<Entity> e(*i);
 
@@ -450,22 +411,70 @@ void System::run()
             e->m_anim.update();
 
             if (e->m_life == false)
-                i = entities.erase(i); 
+                i = entities.erase(i);
             else i++;
         }
+    }
 
-        //draw
-        app.draw(background);
-        for (auto i : entities) i->draw(app);
-        app.draw(text);
-        app.display();
+
+
+    void System::run()
+    {
+       sf::Sprite background(t2);
+
+        // main loop
+        while (app.isOpen() && ptr_p->is_alive())
+        {
+            text.setString("Score: " + std::to_string(ptr_p->score) + "\nLives: " + std::to_string(ptr_p->lives));
+
+            sf::Event event;
+            while (app.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    app.close();
+
+                if (event.type == sf::Event::KeyPressed)
+                    if (event.key.code == sf::Keyboard::Space)
+                    {
+                        entities.push_back(std::make_shared<Bullet>(sBullet, ptr_p->m_x, ptr_p->m_y, ptr_p->m_angle, 10));
+                    }
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) ptr_p->m_angle += delta_phi;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))  ptr_p->m_angle -= delta_phi;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))    ptr_p->thrust = true;
+            else ptr_p->thrust = false;
+
+
+            for (auto a : entities)
+                for (auto b : entities)
+                {
+                    if (a->m_type == Objects::asteroid && b->m_type == Objects::bullet)
+                    {
+                        vsAst_Bul(a, b);
+                    }
+                       
+                    if (a->m_type == Objects::player && b->m_type == Objects::asteroid)
+                    {
+                        vsPl_Ast(a, b);
+                    }
+                }
+
+            global_update();       
+
+            //draw
+            app.draw(background);
+            for (auto i : entities) i->draw(app);
+            app.draw(text);
+            app.display();
+        }
     }
 }
 
 int main()
 {
 
-    System system;
+    asteroids::System system;
     system.run();
     
 
