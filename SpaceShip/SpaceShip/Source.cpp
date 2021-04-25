@@ -38,14 +38,13 @@ namespace asteroids
         static constexpr float deg_to_rad = 0.017453f;
         static const int myRand = 150;
 
-        int amount;
-        int delta_phi;
+        const int amount;
+        const int delta_phi;
     };
 
     class Animation
     {
     public:
-        sf::Sprite m_sprite;
 
         explicit Animation(sf::Texture& t, int x, int y, int w, int h, int count, float speed) :
             m_frame(0), m_speed(speed)
@@ -82,6 +81,7 @@ namespace asteroids
             return (m_frame + m_speed >= m_frames.size());
         }
 
+        sf::Sprite m_sprite;
     private:
         float m_frame;
         float m_speed;
@@ -94,7 +94,7 @@ namespace asteroids
     {
     public:
         explicit Entity(Objects o, Animation& a, float x, float y, float angle = 0.0, float radius = 1.0) :
-            m_anim(a), m_x(x), m_y(y), m_angle(angle), m_r(radius), m_type(o)
+            m_anim(a), m_x(x), m_y(y), m_angle(angle), m_r(radius), m_type(o), m_dx(0), m_dy(0)
         {  }
 
         virtual void update() {};
@@ -105,8 +105,6 @@ namespace asteroids
             m_anim.m_sprite.setRotation(m_angle + 90);
             app.draw(m_anim.m_sprite);
         }
-
-        virtual ~Entity() noexcept = default;
 
     public:
         Animation m_anim;
@@ -168,7 +166,9 @@ namespace asteroids
             m_y += m_dy;
 
             if (m_x > m_width || m_x < 0.0 || m_y > m_height || m_y < 0.0)
+            {
                 m_life = false;
+            }
         }
     private:
         const int bullet_velocity = 6;
@@ -367,10 +367,10 @@ namespace asteroids
             entities.push_back(std::make_shared<Entity>(Objects::explosion, sExplosion, a->m_x, a->m_y));
 
             ptr_p->m_anim = sPlayer;
-            ptr_p->m_x = m_width / 2.0f;
-            ptr_p->m_x = m_height / 2.0f;
-            ptr_p->m_angle = 0.0f;
-            ptr_p->m_r = 20.0f;
+            ptr_p->m_x = uid1(mersenne);
+            ptr_p->m_x = uid2(mersenne);
+            ptr_p->m_angle = uid3(mersenne);
+
             ptr_p->m_dx = 0;
             ptr_p->m_dy = 0;
             ptr_p->live_decrease();
