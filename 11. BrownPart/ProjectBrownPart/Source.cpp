@@ -48,122 +48,159 @@ public:
 	 }
 }
 
+ class System
+ {
+ public:
+
+	 System(std::size_t amount = 50, std::size_t fraction = 6, float width = VideoMode::getDesktopMode().width, 
+		 float height = VideoMode::getDesktopMode().height) :
+		 m_amount(amount), 
+		 m_fraction(fraction), 
+		 m_width(width),
+		 m_height(height),
+		 m_application(VideoMode(m_width, m_height), "Particles"),
+		 mersenne(rd()),
+		 uidx(0.0f, m_width),
+		 uidy(0.0f, m_height),
+		 uidv(-4.0f / 5, 4.0f / 5),
+		 field(m_fraction, std::vector<int>(m_fraction, 0))
+
+	 {
+		 m_particle.reserve(m_amount);
+		 m_circle.reserve(m_amount);
+
+		 m_particle.push_back(std::make_shared<Particle>(width / 2, height / 2, 0.1f, 0.1f, 6.0f, 36.0f));
+
+		 m_circle.push_back(std::make_shared<CircleShape>(m_particle[0]->m_radius));
+
+		 m_circle[0]->setFillColor(Color::Magenta);
+
+		 double x, y;
+
+		 for (auto i = 1U; i < m_amount; i++)
+		 {
+			 x = uidx(mersenne);
+			 y = uidy(mersenne);
+
+			 while ((x + width / 2 + m_particle[0]->m_radius) * (x + width / 2 + m_particle[0]->m_radius) +
+				 (y + height / 2 + m_particle[0]->m_radius) * (y + height / 2 + m_particle[0]->m_radius)
+				 <= (m_particle[0]->m_radius + 10.0f) * (m_particle[0]->m_radius + 10.0f))
+			 {
+				 x = uidx(mersenne);
+				 y = uidy(mersenne);
+			 }
+			 m_particle.push_back(std::make_shared<Particle>(x, y, uidv(mersenne), uidv(mersenne), 1.0f, 6.0f));
+
+			 m_circle.push_back(std::make_shared<CircleShape>(m_particle[i]->m_radius));
+
+			 m_circle[i]->setFillColor(Color::Blue);
+		 }
+	 }
+
+	 void run();
+
+	 const std::size_t m_amount;
+	 const std::size_t m_fraction;
+
+	 const float m_width;
+	 const float m_height;
+
+	 RenderWindow m_application;
+
+	 std::vector <std::shared_ptr<Particle>> m_particle;
+	 std::vector <std::shared_ptr<CircleShape>> m_circle;
+
+	 std::vector <std::vector<int>> field;
+
+	 std::random_device rd;
+	 std::mt19937 mersenne;
+	 std::uniform_real_distribution<float> uidx;
+	 std::uniform_real_distribution<float> uidy;
+	 std::uniform_real_distribution<float> uidv;
+ };
+
+ void System::run()
+ {
+	 std::chrono::steady_clock::time_point time_point = std::chrono::steady_clock::now();
+
+	 const std::chrono::microseconds delay(50000);
+
+	 std::chrono::microseconds timer(0);
+
+	 while (m_application.isOpen())
+	 {
+		 timer += std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now() - time_point);
+
+		 time_point = std::chrono::steady_clock::now();
+
+		 Event event;
+
+		 while (m_application.pollEvent(event))
+		 {
+			 if (event.type == Event::Closed)
+			 {
+				 m_application.close();
+			 }
+		 }
+
+		 for (auto i = 0u; i < m_fraction; i++)
+		 {
+			 for (auto j = 0u; j < m_fraction; j++)
+			 {
+				 RectangleShape rectangle(Vector2f(m_width / m_fraction, m_height / m_fraction));
+
+				 rectangle.setPosition(i * m_width / m_fraction, j * m_height / m_fraction);
+
+				 rectangle.setFillColor(Color(std::abs(255 - field[i][j] * 20), 255, 255));
+
+				 m_application.draw(rectangle);
+
+				 field[i][j] = 0;
+			 }
+		 }
+
+
+		 for (auto i = 0U; i < m_particle.size(); i++)
+		 {
+			 for (auto j = i; j < m_particle.size(); j++)
+			 {
+				 if (i != j)
+					 isCollide(m_particle[i], m_particle[j]);
+			 }
+		 }
+
+		 for (auto i = 0U; i < m_particle.size(); i++)
+		 {
+			 m_circle[i]->setPosition(m_particle[i]->m_x - m_particle[i]->m_radius, m_particle[i]->m_y - m_particle[i]->m_radius);
+
+			 m_application.draw(*m_circle[i]);
+
+			 m_particle[i]->m_x += m_particle[i]->m_dx;
+
+			 m_particle[i]->m_y += m_particle[i]->m_dy;
+
+			 if (m_particle[i]->m_x + m_particle[i]->m_radius > m_width || m_particle[i]->m_x - m_particle[i]->m_radius < 0)
+			 {
+				 m_particle[i]->m_dx = -m_particle[i]->m_dx;
+			 }
+
+			 if (m_particle[i]->m_y + m_particle[i]->m_radius > m_height || m_particle[i]->m_y - m_particle[i]->m_radius < 0)
+			 {
+				 m_particle[i]->m_dy = -m_particle[i]->m_dy;
+			 }
+
+			 field[static_cast<int>(m_particle[i]->m_x / (m_width / m_fraction))][static_cast<int>(m_particle[i]->m_y / (m_height / m_fraction))]++;
+		 }
+
+		 m_application.display();
+
+	 }
+ }
+
 int main()
 {
-	const int N = 50;
-	const int f = 6; // field f*f
-
-	const auto width = VideoMode::getDesktopMode().width;
-	const auto height = VideoMode::getDesktopMode().height;
-
-
-	RenderWindow application(VideoMode(width, height), "Particles");
-
-	std::vector <std::shared_ptr<Particle>> particle;
-	std::vector <std::shared_ptr<CircleShape>> circle;
-	particle.reserve(N);
-	circle.reserve(N);
-
-	std::vector <std::vector<int>> field(f, std::vector<int>(f,0));
-
-	std::random_device rd;
-	std::mt19937 mersenne(rd());
-	std::uniform_real_distribution<float> uidx(0,width);
-	std::uniform_real_distribution<float> uidy(0, height);
-
-	std::uniform_real_distribution<float> uidv(-4.0f/5 ,4.0f/5);
-
-	particle.push_back(std::make_shared<Particle>(width / 2, height / 2, 0.1f, 0.1f, 6.0f, 36.0f));
-	circle.push_back(std::make_shared<CircleShape>(particle[0]->m_radius));
-	circle[0]->setFillColor(Color::Magenta);
-
-	double x, y;
-
-	for (auto i = 1U; i < N; i++)
-	{
-		x = uidx(mersenne);
-		y = uidy(mersenne);
-
-		while ((x + width / 2 + particle[0]->m_radius) * (x + width / 2 + particle[0]->m_radius) +
-			(y + height / 2 + particle[0]->m_radius) * (y + height / 2 + particle[0]->m_radius)
-			<= (particle[0]->m_radius + 10.0f) * (particle[0]->m_radius + 10.0f))
-		{
-			x = uidx(mersenne);
-			y = uidy(mersenne);
-		}
-		particle.push_back(std::make_shared<Particle>(uidx(mersenne), uidy(mersenne), uidv(mersenne), uidv(mersenne), 1.0f, 6.0f));
-		circle.push_back(std::make_shared<CircleShape>(particle[i]->m_radius));
-		circle[i]->setFillColor(Color::Blue);
-	}
-
-
-	std::chrono::steady_clock::time_point time_point = std::chrono::steady_clock::now();
-
-	const std::chrono::microseconds delay(50000);
-
-	std::chrono::microseconds timer(0);
-
-	while (application.isOpen())
-	{	
-		timer += std::chrono::duration_cast <std::chrono::microseconds> (std::chrono::steady_clock::now() - time_point);
-
-		time_point = std::chrono::steady_clock::now();
-
-		Event event;
-
-		while (application.pollEvent(event))
-		{
-			if (event.type == Event::Closed)
-			{
-				application.close();
-			}
-		}
-
-		for (auto i = 0u; i < f; i++)
-		{
-			for (auto j = 0u; j < f; j++)
-			{
-				RectangleShape rectangle(Vector2f(width / f, height / f));
-				rectangle.setPosition(i * width / f, j * height / f);
-				rectangle.setFillColor(Color(std::abs(255 - field[i][j] * 20), 255, 255));
-				application.draw(rectangle);
-
-				field[i][j] = 0;
-			}
-		}
-
-		
-		for (auto i = 0U; i< particle.size(); i++)
-		{
-			for (auto j = i; j < particle.size(); j++)
-			{
-				if (i!=j)
-					isCollide(particle[i], particle[j]);
-			}
-		}
-
-		for (auto i = 0U; i<particle.size(); i++)
-		{			
-			circle[i]->setPosition(particle[i]->m_x - particle[i]->m_radius, particle[i]->m_y - particle[i]->m_radius);
-			application.draw(*circle[i]);
-
-			particle[i]->m_x += particle[i]->m_dx;
-			particle[i]->m_y += particle[i]->m_dy;
-
-			if (particle[i]->m_x + particle[i]->m_radius > width || particle[i]->m_x - particle[i]->m_radius < 0)
-				particle[i]->m_dx = -particle[i]->m_dx;
-
-			if (particle[i]->m_y + particle[i]->m_radius > height || particle[i]->m_y - particle[i]->m_radius < 0)
-				particle[i]->m_dy = -particle[i]->m_dy;
-
-			field[static_cast<int>(particle[i]->m_x / (width / f))][static_cast<int>(particle[i]->m_y / (height / f))]++;
-		}
-
-		application.display();
-				
-	}
-
-	system("pause");
+	System s;
+	s.run();
 
 	return EXIT_SUCCESS;
 }
