@@ -62,8 +62,8 @@ public:
 		 m_height(height),
 		 m_application(VideoMode(m_width, m_height), "Particles"),
 		 mersenne(rd()),
-		 uidx(0.0f, m_width),
-		 uidy(0.0f, m_height),
+		 uidx(0.0, m_width),
+		 uidy(0.0, m_height),
 		 uidv(-4.0 , 4.0),
 		 field(m_fraction, std::vector<int>(m_fraction, 0))
 
@@ -184,12 +184,12 @@ public:
 
 				 m_particle[i]->m_y += m_particle[i]->m_dy;
 
-				 if (m_particle[i]->m_x + m_particle[i]->m_radius > m_width || m_particle[i]->m_x - m_particle[i]->m_radius < 0)
+				 if (m_particle[i]->m_x + m_particle[i]->m_radius > m_width || m_particle[i]->m_x - m_particle[i]->m_radius < 0.0)
 				 {
 					 m_particle[i]->m_dx = -m_particle[i]->m_dx;
 				 }
 
-				 if (m_particle[i]->m_y + m_particle[i]->m_radius > m_height || m_particle[i]->m_y - m_particle[i]->m_radius < 0)
+				 if (m_particle[i]->m_y + m_particle[i]->m_radius > m_height || m_particle[i]->m_y - m_particle[i]->m_radius < 0.0)
 				 {
 					 m_particle[i]->m_dy = -m_particle[i]->m_dy;
 				 }
